@@ -17,6 +17,7 @@ class ComposeMultiplatformLibraryConventionPlugin : Plugin<Project> {
         }
 
         extensions.configure<KotlinMultiplatformExtension> {
+            jvmToolchain(17)
             jvm()
             js { browser() }
             @OptIn(ExperimentalWasmDsl::class)

@@ -8,10 +8,10 @@ import androidx.compose.ui.Modifier
 import com.jefisu.portlens.designsystem.PortLensTheme
 
 @Composable
-fun App() {
+fun App(modifier: Modifier = Modifier) {
     PortLensTheme {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(PortLensTheme.colors.bgBase),
         )

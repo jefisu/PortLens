@@ -1,0 +1,4 @@
+# CLI tool versions — keep in sync with gradle/libs.versions.toml
+KTLINT_VERSION=1.8.0
+DETEKT_VERSION=1.23.8
+TWITTER_DETEKT_COMPOSE_VERSION=0.0.26
