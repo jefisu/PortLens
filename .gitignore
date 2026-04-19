@@ -1,0 +1,37 @@
+# Kotlin / IDE
+*.iml
+.kotlin/
+.gradle/
+.idea/
+*.hprof
+
+# Build outputs
+**/build/
+!src/**/build/
+
+# Compose Hot Reload
+.compose-hot-reload/
+
+# KMP / JS
+node_modules/
+kotlin-js-store/
+
+# macOS
+.DS_Store
+
+# Android local config (never commit — contains absolute SDK path)
+local.properties
+
+# Android Studio / native build
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Xcode / iOS
+xcuserdata/
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
