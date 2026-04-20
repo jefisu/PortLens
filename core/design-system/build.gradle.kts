@@ -1,5 +1,5 @@
 plugins {
-    id("portlens.compose-multiplatform-library")
+    alias(libs.plugins.portlens.compose.multiplatform.library)
 }
 
 compose.resources {

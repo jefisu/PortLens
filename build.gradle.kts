@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.moduleGraph) apply true
 
     // Git hooks — installed automatically on build/clean/check/assemble
-    id("portlens.git-hooks")
+    alias(libs.plugins.portlens.git.hooks)
 }
 
 // Prints every leaf-module path; consumed by generateModuleGraphs.sh

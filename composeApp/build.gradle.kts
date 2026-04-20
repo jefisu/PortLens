@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    id("portlens.dependency-guard")
+    alias(libs.plugins.portlens.dependency.guard)
 }
 
 kotlin {

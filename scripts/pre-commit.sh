@@ -52,6 +52,28 @@ run_detekt() {
     fi
 }
 
+# ── Module graphs: regenerate when inter-module dependencies change ───────────
+run_module_graphs() {
+    if git diff --cached --name-only | grep -q 'build\.gradle\.kts$'; then
+        echo "📦 build.gradle.kts changed — regenerating module graphs..."
+        if ! command -v dot > /dev/null 2>&1; then
+            echo "⚠️  Graphviz 'dot' not found — skipping graph generation."
+            echo "   Install with: brew install graphviz"
+            return 0
+        fi
+        if bash "$ROOT_DIR/generateModuleGraphs.sh" > /tmp/modulegraph-out 2>&1; then
+            git add "$ROOT_DIR/docs/images/graphs/" 2>/dev/null || true
+            rm -f /tmp/modulegraph-out
+            echo "✅ Module graphs updated."
+        else
+            cat /tmp/modulegraph-out
+            rm -f /tmp/modulegraph-out
+            echo "💥 Module graph generation failed."
+            exit 1
+        fi
+    fi
+}
+
 # ── DependencyGuard: regenerate baseline ─────────────────────────────────────
 run_dependency_guard() {
     echo "🔍 Regenerating dependency baseline..."
@@ -68,6 +90,7 @@ run_dependency_guard() {
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 check_branch
+run_module_graphs
 run_ktlint
 run_detekt
 run_dependency_guard
