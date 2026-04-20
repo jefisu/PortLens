@@ -1,0 +1,8 @@
+[*]
+disabled_rules=filename,class-naming,function-naming
+
+[build/**]
+disabled_rules=all
+
+[generated/**]
+disabled_rules=all
