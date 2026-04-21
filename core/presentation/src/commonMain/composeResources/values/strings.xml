@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">PortLens</string>
+    <string name="sidebar_navigation">Navegação</string>
+    <string name="nav_overview">Visão geral</string>
+    <string name="nav_transactions">Lançamentos</string>
+    <string name="nav_portfolio">Carteira atual</string>
+    <string name="nav_monthly_summary">Competências</string>
+    <string name="competence_label">Competência</string>
+    <string name="new_transaction">Novo lançamento</string>
+    <string name="shortcut_n">N</string>
+    <string name="mini_exemption_title">Isenção · %1$s</string>
+    <string name="mini_exemption_summary">%1$s · %2$s · restam %3$s</string>
+    <string name="status_exempt">Isento</string>
+    <string name="status_near_limit">Perto do limite</string>
+    <string name="status_taxable">Tributável</string>
+    <string name="month_short_january">jan</string>
+    <string name="month_short_february">fev</string>
+    <string name="month_short_march">mar</string>
+    <string name="month_short_april">abr</string>
+    <string name="month_short_may">mai</string>
+    <string name="month_short_june">jun</string>
+    <string name="month_short_july">jul</string>
+    <string name="month_short_august">ago</string>
+    <string name="month_short_september">set</string>
+    <string name="month_short_october">out</string>
+    <string name="month_short_november">nov</string>
+    <string name="month_short_december">dez</string>
+    <string name="close">Fechar</string>
+    <string name="placeholder_panel_title">Painel placeholder</string>
+    <string name="placeholder_panel_body">Este slice já reserva o encaixe do fluxo manual sem introduzir validação, persistência ou preview fiscal definitivo antes da fase correta.</string>
+    <string name="placeholder_panel_shortcuts">Atalhos ativos: N para abrir, Esc para fechar.</string>
+</resources>
