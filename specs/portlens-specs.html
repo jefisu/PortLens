@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PortLens — Specs v1.1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       GLOBAL TOKENS (dark default)
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-base: #0A0B0D; --bg-surface: #121418; --bg-surface-2: #1A1D23; --bg-surface-3: #22262E;
+      --border-subtle: #1F2228; --border-default: #2A2E37; --border-strong: #3A3F4A;
+      --text-primary: #F2F3F5; --text-secondary: #A8ADB8; --text-tertiary: #6B7280; --text-disabled: #44494F;
+      --gain: #34D399; --gain-soft: rgba(16,185,129,0.13);
+      --loss: #F87171; --loss-soft: rgba(239,68,68,0.13);
+      --warning: #FBBF24; --warning-soft: rgba(251,191,36,0.13);
+      --neutral: #60A5FA; --neutral-soft: rgba(96,165,250,0.12);
+      --accent: #A3E635; --accent-hover: #BEF264; --accent-fg: #1A2E05;
+    }
+    html[data-theme="light"] {
+      --bg-base: #FAFAF7; --bg-surface: #FFFFFF; --bg-surface-2: #F4F4EF; --bg-surface-3: #EBEBE4;
+      --border-subtle: #E5E5DE; --border-default: #D4D4CB; --border-strong: #9CA3AF;
+      --text-primary: #0F1115; --text-secondary: #4B5563; --text-tertiary: #9CA3AF; --text-disabled: #C5C5BB;
+      --gain: #059669; --loss: #DC2626; --warning: #D97706; --neutral: #2563EB;
+      --accent: #65A30D; --accent-fg: #FFFFFF;
+    }
+
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter Tight', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.55;
+    }
+
+    /* ============================================================
+       SPEC DOCUMENT CHROME
+       ============================================================ */
+    .doc { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+    .doc-sidebar {
+      position: sticky; top: 0; align-self: start;
+      height: 100vh; overflow-y: auto;
+      background: var(--bg-base);
+      border-right: 1px solid var(--border-subtle);
+      padding: 22px 18px; font-size: 13px;
+    }
+    .doc-sidebar .brand { display: flex; align-items: center; gap: 10px; padding: 2px 4px 18px; margin-bottom: 14px; border-bottom: 1px solid var(--border-subtle); }
+    .doc-sidebar .brand-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .doc-sidebar .brand-name { font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; }
+    .doc-sidebar .brand-version { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-tertiary); margin-left: auto; padding: 2px 6px; background: var(--bg-surface-2); border-radius: 4px; }
+
+    .toc-group-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 600; padding: 14px 8px 6px; }
+    .toc-item {
+      display: block; padding: 6px 10px; border-radius: 6px;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 12.5px; line-height: 1.4;
+      transition: background 100ms, color 100ms;
+    }
+    .toc-item:hover { background: var(--bg-surface-2); color: var(--text-primary); }
+    .toc-item.active { background: var(--bg-surface-2); color: var(--text-primary); font-weight: 500; border-left: 2px solid var(--accent); padding-left: 8px; }
+    .toc-item.sub { padding-left: 22px; font-size: 12px; color: var(--text-tertiary); }
+    .toc-item.sub.active { padding-left: 20px; }
+
+    .doc-main { min-width: 0; }
+    .doc-topbar {
+      position: sticky; top: 0; z-index: 5;
+      height: 56px;
+      background: rgba(10,11,13,0.82); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+    }
+    html[data-theme="light"] .doc-topbar { background: rgba(250,250,247,0.82); }
+    .doc-topbar-title { font-size: 12px; color: var(--text-tertiary); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.05em; }
+    .doc-topbar-right { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--text-secondary); }
+    .doc-topbar-links { display: flex; align-items: center; gap: 6px; }
+    .doc-topbar-link {
+      display: inline-flex; align-items: center; padding: 6px 10px;
+      border-radius: 7px; border: 1px solid var(--border-default);
+      background: var(--bg-surface-2); color: var(--text-secondary);
+      text-decoration: none; font-size: 12px;
+    }
+    .doc-topbar-link:hover { color: var(--text-primary); }
+    .theme-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-surface-2); border: 1px solid var(--border-default); border-radius: 7px; color: var(--text-secondary); font-size: 12px; cursor: pointer; font-family: inherit; }
+    .theme-toggle:hover { color: var(--text-primary); }
+
+    .doc-content { padding: 48px 56px 120px; max-width: 1200px; }
+    .doc-content section { scroll-margin-top: 72px; padding: 32px 0; border-bottom: 1px solid var(--border-subtle); }
+    .doc-content section:last-child { border-bottom: none; }
+
+    .section-eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+    html[data-theme="light"] .section-eyebrow { color: var(--accent); }
+    .section-title { font-family: 'Fraunces', Georgia, serif; font-weight: 400; letter-spacing: -0.02em; margin-top: 6px; }
+    h1.section-title { font-size: 48px; line-height: 1.05; }
+    h2.section-title { font-size: 32px; line-height: 1.15; margin-top: 48px; }
+    h3 { font-family: 'Inter Tight', sans-serif; font-size: 18px; font-weight: 600; margin-top: 28px; margin-bottom: 8px; letter-spacing: -0.01em; }
+    h4 { font-family: 'Inter Tight', sans-serif; font-size: 14px; font-weight: 600; margin-top: 20px; margin-bottom: 6px; letter-spacing: 0.01em; color: var(--text-primary); }
+
+    .doc-content p { font-size: 14.5px; color: var(--text-secondary); margin-top: 10px; max-width: 760px; }
+    .doc-content p strong { color: var(--text-primary); font-weight: 600; }
+    .doc-content ul, .doc-content ol { padding-left: 22px; margin-top: 10px; color: var(--text-secondary); }
+    .doc-content li { font-size: 14px; margin-top: 4px; }
+    .doc-content li strong { color: var(--text-primary); font-weight: 600; }
+    .doc-content code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; background: var(--bg-surface-2); border: 1px solid var(--border-subtle); padding: 1px 6px; border-radius: 4px; color: var(--text-primary); }
+
+    .doc-content .lede { font-size: 16px; color: var(--text-secondary); max-width: 720px; margin-top: 12px; line-height: 1.6; }
+
+    .callout { background: var(--bg-surface); border: 1px solid var(--border-default); border-left: 3px solid var(--neutral); border-radius: 10px; padding: 14px 18px; margin-top: 16px; font-size: 13.5px; color: var(--text-secondary); }
+    .callout strong { color: var(--text-primary); }
+    .callout.accent { border-left-color: var(--accent); }
+    .callout.warning { border-left-color: var(--warning); }
+
+    /* Token tables */
+    .token-table { width: 100%; border-collapse: collapse; margin-top: 14px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; }
+    .token-table th { text-align: left; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 10px 14px; background: var(--bg-surface-2); border-bottom: 1px solid var(--border-default); }
+    .token-table td { padding: 10px 14px; font-size: 12.5px; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+    .token-table tr:last-child td { border-bottom: none; }
+    .token-table td code { background: transparent; border: 0; padding: 0; color: var(--text-primary); }
+    .swatch { display: inline-block; width: 20px; height: 20px; border-radius: 5px; vertical-align: middle; margin-right: 10px; border: 1px solid var(--border-default); }
+    .token-name { font-family: 'IBM Plex Mono', monospace; color: var(--text-primary); font-size: 12px; }
+
+    /* Component showcase */
+    .showcase-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding: 16px 18px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; }
+    .showcase-row.col { flex-direction: column; align-items: stretch; }
+    .status-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .status-card-sample { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; }
+    .status-card-sample .title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+    .status-card-sample .value { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500; margin-top: 10px; }
+    .status-card-sample .hint { font-size: 12px; margin-top: 8px; color: var(--text-secondary); }
+
+    /* Badge examples (shared with screens) */
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+    .progress { height: 5px; background: var(--bg-surface-3); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; }
+
+    /* ============================================================
+       SCREEN FRAME (scopes the app layout of each mockup)
+       The original mockups assume they ARE the whole page:
+       - body { height: 100vh; overflow: hidden }
+       - .app { height: 100vh }
+       We replicate that inside a fixed-height div.
+       ============================================================ */
+    .screen { margin-top: 28px; }
+    .screen-meta { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+    .screen-meta .num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-tertiary); letter-spacing: 0.1em; }
+    .screen-meta h3 { margin: 0; font-size: 20px; }
+    .screen-meta p { margin: 0; font-size: 13px; color: var(--text-tertiary); flex: 1; }
+    .screen-frame {
+      position: relative;
+      width: 100%;
+      height: 900px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+    .screen-frame .app {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      width: 100%;
+      min-width: 0;
+      height: 100%;
+      font-family: 'Inter Tight', system-ui, sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-base);
+    }
+
+    /* Modal-centered screens: replicate body { display:flex; align-items:center; justify-content:center; background grid } */
+    .screen-frame.modal-host { display: flex; align-items: center; justify-content: center; }
+    .screen-frame.modal-host::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+      background-size: 40px 40px; opacity: 0.4; pointer-events: none;
+    }
+    .screen-frame.panel-host { position: relative; }
+
+    /* ============================================================
+       SHARED APP CHROME (sidebar + topbar + content) — mirrors
+       the mockups. Scoped under .screen-frame so it doesn't leak
+       into the spec document itself.
+       ============================================================ */
+    .screen-frame .sidebar { background: var(--bg-base); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; padding: 20px 14px; gap: 2px; overflow-y: auto; }
+    .screen-frame .logo { display: flex; align-items: center; gap: 10px; padding: 2px 4px 16px; margin-bottom: 6px; border-bottom: 1px solid var(--border-subtle); }
+    .screen-frame .logo-icon { width: 26px; height: 26px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .screen-frame .logo-name { font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; }
+    .screen-frame .nav-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 8px 8px 4px; }
+    .screen-frame .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: background 100ms; cursor: default; }
+    .screen-frame .nav-item:hover { background: var(--bg-surface-2); color: var(--text-primary); }
+    .screen-frame .nav-item.active { background: var(--bg-surface-2); color: var(--text-primary); font-weight: 500; }
+    .screen-frame .isencao-mini { margin-top: auto; padding-top: 14px; }
+    .screen-frame .isencao-mini-inner { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; padding: 13px; }
+
+    .screen-frame .main { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    .screen-frame .topbar { height: 56px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+    .screen-frame .topbar-context { display: flex; align-items: center; gap: 10px; }
+    .screen-frame .month-pill { display: flex; align-items: center; gap: 6px; background: var(--bg-surface-2); border: 1px solid var(--border-default); border-radius: 7px; padding: 6px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; }
+    .screen-frame .btn-primary { display: inline-flex; align-items: center; gap: 7px; background: var(--accent); color: var(--accent-fg); font-family: 'Inter Tight', sans-serif; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px; border: none; cursor: default; }
+    .screen-frame .btn-primary-lg { display: inline-flex; align-items: center; gap: 9px; background: var(--accent); color: var(--accent-fg); font-size: 14px; font-weight: 600; padding: 12px 20px; border-radius: 9px; cursor: default; }
+    .screen-frame .btn-secondary { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--text-secondary); font-size: 12px; font-weight: 500; padding: 7px 12px; border: 1px solid var(--border-default); border-radius: 7px; cursor: default; }
+    .screen-frame .kbd { opacity: .5; font-size: 10px; padding: 1px 5px; background: rgba(0,0,0,.15); border-radius: 3px; font-family: 'IBM Plex Mono', monospace; }
+    html[data-theme="light"] .screen-frame .kbd { background: rgba(0,0,0,.08); }
+
+    .screen-frame .content { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .screen-frame .page-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .screen-frame .page-title { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 400; letter-spacing: -0.02em; }
+
+    .screen-frame .card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; }
+    .screen-frame .label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; }
+
+    .screen-frame table { width: 100%; border-collapse: collapse; }
+    .screen-frame th { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); font-weight: 500; padding: 10px 14px; background: var(--bg-surface); border-bottom: 1px solid var(--border-default); text-align: left; white-space: nowrap; position: sticky; top: 0; }
+    .screen-frame th.r, .screen-frame td.r { text-align: right; }
+    .screen-frame td { padding: 12px 14px; font-size: 12px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface); }
+    .screen-frame tbody tr:last-child td { border-bottom: none; }
+    .screen-frame tbody tr:hover td { background: var(--bg-surface-2); }
+    .screen-frame tfoot td { background: var(--bg-surface-2); font-weight: 600; border-top: 1px solid var(--border-default); border-bottom: none; font-size: 11px; letter-spacing: 0.04em; }
+
+    .screen-frame .tab-group { display: flex; gap: 2px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 3px; }
+    .screen-frame .tab { padding: 5px 10px; font-size: 12px; color: var(--text-secondary); border-radius: 5px; cursor: default; }
+    .screen-frame .tab.active { background: var(--bg-surface-3); color: var(--text-primary); font-weight: 500; }
+    .screen-frame .progress-mini { width: 60px; height: 5px; background: var(--bg-surface-3); border-radius: 999px; overflow: hidden; display: inline-block; vertical-align: middle; }
+    .screen-frame .progress-mini-fill { height: 100%; border-radius: 999px; }
+
+    /* ---- Side panel (Novo Lançamento) ---- */
+    .screen-frame .app.dimmed { opacity: 0.25; pointer-events: none; filter: blur(1px); }
+    .screen-frame .overlay { position: absolute; inset: 0; background: rgba(10,11,13,0.6); z-index: 10; pointer-events: none; }
+    .screen-frame .panel { position: absolute; top: 0; right: 0; bottom: 0; width: 420px; background: var(--bg-base); border-left: 1px solid var(--border-default); z-index: 20; display: flex; flex-direction: column; box-shadow: -12px 0 40px rgba(0,0,0,0.5); }
+    .screen-frame .panel-header { padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .screen-frame .panel-body { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+    .screen-frame .panel-footer { padding: 16px 22px; border-top: 1px solid var(--border-subtle); display: flex; gap: 10px; flex-shrink: 0; }
+
+    .screen-frame .field-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: 6px; }
+    .screen-frame .input { width: 100%; background: var(--bg-surface-3); border: 1px solid var(--border-default); border-radius: 8px; padding: 10px 12px; color: var(--text-primary); font-size: 13px; font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+    .screen-frame .input.focused { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(163,230,53,0.15); }
+    .screen-frame .segmented { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 3px; }
+    .screen-frame .seg-opt { padding: 7px 10px; text-align: center; font-size: 12px; color: var(--text-secondary); border-radius: 5px; font-weight: 500; cursor: default; }
+    .screen-frame .seg-opt.active { background: var(--bg-surface-3); color: var(--warning); font-weight: 600; }
+    .screen-frame .btn-cancel { flex: 1; padding: 10px; text-align: center; color: var(--text-secondary); font-size: 13px; font-weight: 500; border: 1px solid var(--border-default); border-radius: 8px; cursor: default; }
+    .screen-frame .btn-confirm { flex: 2; padding: 10px 16px; text-align: center; background: var(--accent); color: var(--accent-fg); font-size: 13px; font-weight: 600; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: default; }
+    .screen-frame .preview-card { background: var(--bg-surface-2); border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; margin-top: 4px; }
+    .screen-frame .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .screen-frame .preview-val-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 3px; }
+    .screen-frame .preview-val { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500; }
+
+    /* ---- Modal (Import) ---- */
+    .screen-frame .modal { background: var(--bg-base); border: 1px solid var(--border-default); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,0.7); position: relative; z-index: 1; max-height: 90%; }
+    .screen-frame .modal-header { padding: 20px 28px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .screen-frame .modal-body { flex: 1; overflow-y: auto; padding: 32px 28px; }
+    .screen-frame .modal-footer { padding: 16px 28px; border-top: 1px solid var(--border-subtle); background: var(--bg-surface); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .screen-frame .stepper { display: flex; align-items: center; padding: 14px 28px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+    .screen-frame .step { display: flex; align-items: center; gap: 8px; }
+    .screen-frame .step-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .screen-frame .step-num.active { background: var(--accent); color: var(--accent-fg); }
+    .screen-frame .step-num.done { background: var(--bg-surface-3); color: var(--text-tertiary); }
+    .screen-frame .step-num.pending { background: var(--bg-surface-2); color: var(--text-disabled); border: 1px solid var(--border-default); }
+    .screen-frame .step-label.active { font-size: 12px; color: var(--text-primary); font-weight: 600; }
+    .screen-frame .step-label.pending { font-size: 12px; color: var(--text-disabled); font-weight: 500; }
+    .screen-frame .step-line { flex: 1; height: 1px; background: var(--border-default); margin: 0 12px; }
+    .screen-frame .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+    .screen-frame .option-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 24px; cursor: default; transition: border-color 150ms; }
+    .screen-frame .option-card.selected { border-color: var(--accent); background: rgba(163,230,53,0.04); }
+    .screen-frame .option-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .screen-frame .option-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .screen-frame .option-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .screen-frame .option-tag { display: inline-block; margin-top: 12px; font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; background: var(--bg-surface-3); border-radius: 4px; }
+    .screen-frame .option-tag.recommended { color: var(--accent); background: rgba(163,230,53,0.12); }
+    .screen-frame .dropzone { border: 1px dashed var(--border-strong); border-radius: 12px; padding: 36px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+    .screen-frame .dropzone-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--bg-surface-2); border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+    .screen-frame .btn-next { display: inline-flex; align-items: center; gap: 7px; background: var(--accent); color: var(--accent-fg); font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; cursor: default; text-decoration: none; }
+    .screen-frame .btn-back { padding: 9px 14px; color: var(--text-secondary); font-size: 13px; font-weight: 500; border: 1px solid var(--border-default); border-radius: 8px; text-decoration: none; white-space: nowrap; cursor: default; }
+    .screen-frame .modal .btn-cancel { flex: none; padding: 9px 16px; color: var(--text-secondary); font-size: 13px; font-weight: 500; border: 1px solid var(--border-default); border-radius: 8px; background: transparent; cursor: default; text-decoration: none; }
+    .screen-frame .checkbox-on { width: 16px; height: 16px; border-radius: 4px; background: var(--bg-surface-3); border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; }
+    .screen-frame .checkbox-off { width: 16px; height: 16px; border-radius: 4px; background: rgba(239,68,68,0.13); border: 1px solid rgba(248,113,113,0.4); display: flex; align-items: center; justify-content: center; }
+
+    /* Traceability / nota tooltip */
+    .screen-frame .nota-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; background: var(--neutral-soft); border: 1px solid rgba(96,165,250,0.2); font-size: 10px; color: var(--neutral); font-family: 'IBM Plex Mono', monospace; }
+    .screen-frame .toggle-pill { display: flex; align-items: center; gap: 7px; padding: 6px 10px; background: var(--bg-surface); border: 1px solid rgba(96,165,250,0.3); border-radius: 7px; }
+    .screen-frame .toggle-track { width: 28px; height: 16px; background: var(--neutral); border-radius: 999px; position: relative; flex-shrink: 0; }
+    .screen-frame .toggle-thumb { width: 12px; height: 12px; background: var(--bg-base); border-radius: 50%; position: absolute; top: 2px; right: 2px; }
+    .screen-frame .tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+    .screen-frame .tooltip { position: absolute; bottom: calc(100% + 10px); right: 0; background: var(--bg-surface-3); border: 1px solid var(--border-strong); border-radius: 8px; padding: 10px 12px; white-space: nowrap; z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.5); min-width: 200px; }
+    .screen-frame .tooltip::after { content: ''; position: absolute; bottom: -5px; right: 14px; width: 8px; height: 8px; background: var(--bg-surface-3); border-right: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); transform: rotate(45deg); }
+
+    /* Import step 3 result grid */
+    .screen-frame .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin: 28px 0; }
+    .screen-frame .result-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; padding: 16px; text-align: left; }
+    .screen-frame .btn-view { display: inline-flex; align-items: center; gap: 7px; color: var(--neutral); font-size: 13px; font-weight: 500; padding: 10px 18px; border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; text-decoration: none; cursor: default; }
+    .screen-frame .btn-secondary-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; padding: 10px 16px; border: 1px solid var(--border-default); border-radius: 8px; text-decoration: none; cursor: default; }
+    .screen-frame .summary-bar { padding: 11px 28px; border-bottom: 1px solid var(--border-subtle); display: flex; gap: 20px; align-items: center; background: var(--bg-surface); flex-shrink: 0; }
+    .screen-frame .table-wrap { flex: 1; overflow-y: auto; min-height: 0; }
+    .screen-frame .modal-footer-import { padding: 14px 28px; border-top: 1px solid var(--border-default); background: var(--bg-surface); display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .screen-frame .modal td { background: var(--bg-base); }
+
+    /* Responsive shrink for narrow browsers */
+    @media (max-width: 1280px) {
+      .doc { grid-template-columns: 240px 1fr; }
+      .doc-content { padding: 40px 32px 120px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="doc">
+  <!-- ===== DOC SIDEBAR / TOC ===== -->
+  <aside class="doc-sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="brand-name">PortLens</span>
+      <span class="brand-version">v1.1</span>
+    </div>
+
+    <nav id="toc">
+      <div class="toc-group-label">Overview</div>
+      <a class="toc-item" href="#cover">Cover</a>
+
+      <div class="toc-group-label">Product</div>
+      <a class="toc-item" href="#product">Context</a>
+      <a class="toc-item" href="#product-module-1">Module 1 — Transactions</a>
+      <a class="toc-item" href="#product-module-2">Module 2 — Current Portfolio</a>
+      <a class="toc-item" href="#product-module-3">Module 3 — Monthly Summary</a>
+      <a class="toc-item" href="#product-rules">Business rules</a>
+      <a class="toc-item" href="#product-import">Data import</a>
+
+      <div class="toc-group-label">Design Guidelines</div>
+      <a class="toc-item" href="#guidelines">1 · Principles</a>
+      <a class="toc-item" href="#g-colors">2 · Colors</a>
+      <a class="toc-item" href="#g-typography">3 · Typography</a>
+      <a class="toc-item" href="#g-spacing">4 · Spacing &amp; grid</a>
+      <a class="toc-item" href="#g-components">5 · Key components</a>
+      <a class="toc-item" href="#g-interaction">6 · Interaction</a>
+      <a class="toc-item" href="#g-a11y">7 · Accessibility</a>
+      <a class="toc-item" href="#g-voice">8 · Voice &amp; tone</a>
+      <a class="toc-item" href="#g-iconography">9 · Iconography</a>
+      <a class="toc-item" href="#g-screens-inventory">10 · Screen inventory &amp; import flow</a>
+      <a class="toc-item" href="#g-checklist">11 · Quality checklist</a>
+      <a class="toc-item" href="#g-out-of-scope">12 · Out of scope</a>
+
+      <div class="toc-group-label">Screens</div>
+      <a class="toc-item sub" href="#screen-01-dashboard">01 · Dashboard</a>
+      <a class="toc-item sub" href="#screen-02-transactions">02 · Transactions</a>
+      <a class="toc-item sub" href="#screen-03-portfolio">03 · Current Portfolio</a>
+      <a class="toc-item sub" href="#screen-04-summary">04 · Monthly Summary</a>
+      <a class="toc-item sub" href="#screen-05-new">05 · New Transaction</a>
+      <a class="toc-item sub" href="#screen-06-empty">06 · Empty State</a>
+      <a class="toc-item sub" href="#screen-07-import-1">07 · Import · Step 1</a>
+      <a class="toc-item sub" href="#screen-08-import-2">08 · Import · Step 2</a>
+      <a class="toc-item sub" href="#screen-09-import-3">09 · Import · Step 3</a>
+      <a class="toc-item sub" href="#screen-10-trace">10 · Traceability</a>
+      <a class="toc-item sub" href="#screen-11-duplicate">11 · Duplicate Note</a>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="doc-main">
+    <header class="doc-topbar">
+      <span class="doc-topbar-title">PortLens · Design &amp; Product Specification · v1.1</span>
+      <div class="doc-topbar-right">
+        <div class="doc-topbar-links">
+          <a class="doc-topbar-link" href="#product">Product</a>
+          <a class="doc-topbar-link" href="#guidelines">Guidelines</a>
+          <a class="doc-topbar-link" href="#screens">Screens</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle" type="button">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <span id="themeLabel">Light</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="doc-content">
+
+    <!-- ================================================
+         COVER
+         ================================================ -->
+    <section id="cover">
+      <div class="section-eyebrow">PortLens · Specs v1.1</div>
+      <h1 class="section-title">Portfolio clarity, tax-aware.</h1>
+      <p class="lede">
+        Single-source specification for PortLens — a desktop tool that helps Brazilian retail investors run the monthly
+        tax-exemption loophole (up to R$ 20,000 of equity sales / month, per Lei 11.033/2004) to raise their average
+        cost basis and reduce future capital-gains tax. This document bundles the product brief, the visual
+        &amp; interaction guidelines, and the eleven canonical screens.
+      </p>
+      <div class="callout accent" style="margin-top: 24px;">
+        <strong>How to read this file.</strong> The sidebar groups the spec into three blocks:
+        <em>Product</em> (what the tool does), <em>Design Guidelines</em> (how it looks and behaves),
+        and <em>Screens</em> (the canonical mockups). The product UI inside the screens is in Portuguese
+        because that is the shipped language; the spec narrative around it is in English.
+      </div>
+    </section>
+
+    <!-- ================================================
+         PRODUCT
+         ================================================ -->
+    <section id="product">
+      <div class="section-eyebrow">Product</div>
+      <h2 class="section-title">Context</h2>
+      <p>
+        PortLens is a portfolio-tracking tool for individual Brazilian investors using the <strong>monthly
+        tax-exemption strategy</strong> — commonly called "limpeza de lucro" (gain cleanup) — to legally raise their
+        stock cost basis. Brazilian tax law (Lei 11.033/2004) exempts from income tax any capital gains on monthly
+        equity sales totaling up to R$ 20,000 (across all tickers combined). The product's single job is to tell the
+        user, at any moment: <em>"Can I sell this position right now without paying tax?"</em>
+      </p>
+      <p>
+        The user records every transaction (manual entry, CSV, or PDF brokerage note). PortLens computes weighted
+        average cost, accumulated monthly sale volume, realized gains/losses, and the current exemption status in real
+        time. The design is dark-first, data-dense, and keyboard-driven because the target user is comfortable with
+        spreadsheets and comes to PortLens to look at numbers, not to be delighted by animations.
+      </p>
+    </section>
+
+    <section id="product-module-1">
+      <h3>Module 1 — Transactions (Lançamentos)</h3>
+      <p>
+        Record of every portfolio operation. Each entry contains: date, ticker, type (<code>Compra</code> / <code>Venda</code> / <code>Recompra</code>),
+        quantity, and unit price. From these entries the system derives, per operation and in real time:
+      </p>
+      <ul>
+        <li>Operation volume</li>
+        <li>Weighted average price <em>before</em> the operation (historical weighted cost basis)</li>
+        <li>Quantity and total cost held before and after</li>
+        <li>New average price after the operation</li>
+        <li>Realized gain or loss (only on sales)</li>
+        <li>Accumulated sale volume in the current month (summed across every ticker)</li>
+        <li>Exemption status for the month (<code>≤ R$ 20,000</code> = exempt)</li>
+      </ul>
+    </section>
+
+    <section id="product-module-2">
+      <h3>Module 2 — Current Portfolio (Carteira Atual)</h3>
+      <p>Consolidated view per ticker showing:</p>
+      <ul>
+        <li>Current position and weighted average price</li>
+        <li>Market value (using the user-provided quote)</li>
+        <li>Unrealized gain and return</li>
+        <li>Suggested sale quantity to stay within the monthly exemption limit</li>
+      </ul>
+    </section>
+
+    <section id="product-module-3">
+      <h3>Module 3 — Monthly Summary (Competências)</h3>
+      <p>One row per month/year with:</p>
+      <ul>
+        <li>Total sale volume for the month (all assets combined)</li>
+        <li>Exemption status</li>
+        <li>Realized gain for the month</li>
+        <li>Estimated income tax (15% of the gain, only when taxable)</li>
+        <li>Total quantity sold and repurchased</li>
+      </ul>
+      <p>
+        Terminology note: <em>Competência</em> is the Brazilian fiscal period (usually a calendar month). We keep the
+        term in Portuguese because it is the label the product surfaces to users and it has no clean one-word English
+        equivalent.
+      </p>
+    </section>
+
+    <section id="product-rules">
+      <h2 class="section-title">Critical business rules</h2>
+      <ol>
+        <li>The <strong>R$ 20,000 limit is monthly</strong> and sums across every ticker sold in that month, not per asset.</li>
+        <li>The exemption applies <strong>only to regular stocks</strong> — not FIIs (real-estate funds), ETFs, or BDRs.</li>
+        <li>A <strong>recompra (repurchase)</strong> must happen on <strong>D+1</strong> to qualify as swing trade, not day trade.</li>
+        <li>The new weighted average after a repurchase is the repurchase price weighted with the remaining balance.</li>
+        <li>Even when exempt, <strong>the operation must still be declared in the IRPF</strong> (Brazilian income-tax return).</li>
+      </ol>
+    </section>
+
+    <section id="product-import">
+      <h2 class="section-title">Data import</h2>
+      <p>Beyond manual entry, PortLens accepts two kinds of input:</p>
+      <ul>
+        <li><strong>Brokerage note (PDF)</strong> — the official document issued by the broker. Operations are extracted automatically.</li>
+        <li><strong>CSV file</strong> — data previously exported from PortLens itself, enabling backup and migration between environments.</li>
+      </ul>
+      <p>
+        The import flow is a three-step modal (file → review → confirm). Deduplication is anchored on the
+        <strong>brokerage note number</strong>: if the number is already in the database, the flow halts at step 1 with
+        a "note already imported" state. Nothing is persisted until the user explicitly confirms step 3.
+      </p>
+    </section>
+
+    <!-- ================================================
+         GUIDELINES
+         ================================================ -->
+    <section id="guidelines">
+      <div class="section-eyebrow">Design Guidelines</div>
+      <h2 class="section-title">1 · Principles</h2>
+      <p>
+        Five principles govern every interface decision in PortLens. When they conflict, the order defines the priority.
+      </p>
+
+      <h4>1. Fiscal clarity above everything</h4>
+      <p>
+        The user opens PortLens to answer a single question: <em>"Can I sell this without paying tax?"</em>. The answer
+        must be readable in under two seconds from anywhere in the app. The current-month exemption status is the most
+        important datum in the product and deserves permanent real estate on screen.
+      </p>
+
+      <h4>2. Density with breathing room</h4>
+      <p>
+        Investors want to see many numbers at once — average cost, position, unrealized gain, accumulated volume,
+        distance to the monthly limit. The design does not run from density; it organizes it. Generous cell padding,
+        clear typographic hierarchy, and strict separation between data groups make a twelve-column table legible.
+      </p>
+
+      <h4>3. Data entry is the critical path</h4>
+      <p>
+        Logging a transaction should be a keyboard action, not a click journey. The entry form must be one keystroke
+        away, accept sequential keyboard navigation, and deliver immediate feedback on derived values (new average,
+        accumulated volume, exemption status) while the user types. Bulk import (PDF or CSV) is an extension of this
+        principle: the system does the heavy lifting but the user always reviews and confirms before anything is
+        persisted.
+      </p>
+
+      <h4>4. Numbers don't lie but need context</h4>
+      <p>
+        No monetary value appears without unit, sign (gain/loss), and — when relevant — distance to a limit.
+        <code>R$ 18,450</code> says nothing; <code>R$ 18,450 of R$ 20,000 (92%)</code> tells a story.
+      </p>
+
+      <h4>5. Dark by default, light with respect</h4>
+      <p>
+        Dark-first is not aesthetics, it is ergonomics for people staring at spreadsheets at night. But the light theme
+        is first-class — users who need to print or work in direct sunlight deserve the same level of polish.
+      </p>
+    </section>
+
+    <section id="g-colors">
+      <h2 class="section-title">2 · Colors</h2>
+
+      <h3>2.1 Dark palette (default)</h3>
+      <p>
+        Near-pure black as the page background, then successive layers of slightly blue-tinted gray to build depth
+        without noise. The palette avoids the saturated navy typical of banks and the purple-gradient cliché of generic
+        fintech.
+      </p>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#0A0B0D;"></span><span class="token-name">--bg-base</span></td><td><code>#0A0B0D</code></td><td>Page background</td></tr>
+          <tr><td><span class="swatch" style="background:#121418;"></span><span class="token-name">--bg-surface</span></td><td><code>#121418</code></td><td>Cards, tables</td></tr>
+          <tr><td><span class="swatch" style="background:#1A1D23;"></span><span class="token-name">--bg-surface-2</span></td><td><code>#1A1D23</code></td><td>Card-on-card, hover</td></tr>
+          <tr><td><span class="swatch" style="background:#22262E;"></span><span class="token-name">--bg-surface-3</span></td><td><code>#22262E</code></td><td>Inputs, selected tags</td></tr>
+          <tr><td><span class="swatch" style="background:#1F2228;"></span><span class="token-name">--border-subtle</span></td><td><code>#1F2228</code></td><td>Internal dividers</td></tr>
+          <tr><td><span class="swatch" style="background:#2A2E37;"></span><span class="token-name">--border-default</span></td><td><code>#2A2E37</code></td><td>Card borders</td></tr>
+          <tr><td><span class="swatch" style="background:#3A3F4A;"></span><span class="token-name">--border-strong</span></td><td><code>#3A3F4A</code></td><td>Focused field borders</td></tr>
+          <tr><td><span class="swatch" style="background:#F2F3F5;"></span><span class="token-name">--text-primary</span></td><td><code>#F2F3F5</code></td><td>Numbers, titles</td></tr>
+          <tr><td><span class="swatch" style="background:#A8ADB8;"></span><span class="token-name">--text-secondary</span></td><td><code>#A8ADB8</code></td><td>Labels, metadata</td></tr>
+          <tr><td><span class="swatch" style="background:#6B7280;"></span><span class="token-name">--text-tertiary</span></td><td><code>#6B7280</code></td><td>Placeholders, timestamps</td></tr>
+          <tr><td><span class="swatch" style="background:#44494F;"></span><span class="token-name">--text-disabled</span></td><td><code>#44494F</code></td><td>Unavailable values</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.2 Semantic colors</h3>
+      <p>Three functional colors, always used with the same meaning across the product. Never decorative.</p>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#34D399;"></span><span class="token-name">--gain</span></td><td><code>#34D399</code></td><td>Gains, active exemption, confirmations</td></tr>
+          <tr><td><span class="swatch" style="background:#F87171;"></span><span class="token-name">--loss</span></td><td><code>#F87171</code></td><td>Losses, active taxation, errors</td></tr>
+          <tr><td><span class="swatch" style="background:#FBBF24;"></span><span class="token-name">--warning</span></td><td><code>#FBBF24</code></td><td>Proximity to R$ 20k limit (&gt;80%)</td></tr>
+          <tr><td><span class="swatch" style="background:#60A5FA;"></span><span class="token-name">--neutral</span></td><td><code>#60A5FA</code></td><td>Information, totals, selection</td></tr>
+        </tbody>
+      </table>
+
+      <h3>2.3 Brand color</h3>
+      <p>A single brand color, used sparingly. Reserved for the logo, the primary CTA ("Novo Lançamento") and the active-month indicator.</p>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#A3E635;"></span><span class="token-name">--accent</span></td><td><code>#A3E635</code></td><td>Brand mark, primary CTA</td></tr>
+          <tr><td><span class="swatch" style="background:#BEF264;"></span><span class="token-name">--accent-hover</span></td><td><code>#BEF264</code></td><td>CTA hover state</td></tr>
+          <tr><td><span class="swatch" style="background:#1A2E05;"></span><span class="token-name">--accent-fg</span></td><td><code>#1A2E05</code></td><td>Text on brand background</td></tr>
+        </tbody>
+      </table>
+      <p>Lime-green (not emerald) differentiates PortLens from the generic fintech-green and reads cleanly on the dark theme without competing with the semantic colors.</p>
+
+      <h3>2.4 Light theme (mirrored)</h3>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><span class="swatch" style="background:#FAFAF7;"></span><span class="token-name">--bg-base</span></td><td><code>#FAFAF7</code> (warm off-white)</td></tr>
+          <tr><td><span class="swatch" style="background:#FFFFFF;"></span><span class="token-name">--bg-surface</span></td><td><code>#FFFFFF</code></td></tr>
+          <tr><td><span class="swatch" style="background:#F4F4EF;"></span><span class="token-name">--bg-surface-2</span></td><td><code>#F4F4EF</code></td></tr>
+          <tr><td><span class="swatch" style="background:#0F1115;"></span><span class="token-name">--text-primary</span></td><td><code>#0F1115</code></td></tr>
+          <tr><td><span class="swatch" style="background:#059669;"></span><span class="token-name">--gain</span></td><td><code>#059669</code></td></tr>
+          <tr><td><span class="swatch" style="background:#DC2626;"></span><span class="token-name">--loss</span></td><td><code>#DC2626</code></td></tr>
+          <tr><td><span class="swatch" style="background:#65A30D;"></span><span class="token-name">--accent</span></td><td><code>#65A30D</code></td></tr>
+        </tbody>
+      </table>
+      <p class="callout">Try the theme toggle on the topbar to preview the light palette across this document, including the screen frames below.</p>
+    </section>
+
+    <section id="g-typography">
+      <h2 class="section-title">3 · Typography</h2>
+      <p>Three families, each with a specific role. All are freely available on Google Fonts.</p>
+
+      <h4>Display — <code>Fraunces</code></h4>
+      <p>Contemporary variable-axis serif. Used for large headings, the wordmark and hero numbers. Gives PortLens a voice between financial editorial and modern fintech — sophisticated without banking austerity or serif cliché.</p>
+      <h4>Interface — <code>Inter Tight</code></h4>
+      <p>Sans-serif designed for UI, with generous x-height and excellent small-size readability. Lives harmoniously next to Fraunces without competing.</p>
+      <h4>Numeric / Tabular — <code>IBM Plex Mono</code></h4>
+      <p>Monospace with active tabular variant, humanist drawing with slight warmth. <strong>Every monetary value, quantity and percentage uses this family</strong> — columns of numbers auto-align and visual comparison becomes instant.</p>
+
+      <h3>Type scale</h3>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Size</th><th>Line</th><th>Weight</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-name">display-xl</span></td><td>56px</td><td>1.05</td><td>400</td><td>Hero number (total patrimônio) — Fraunces</td></tr>
+          <tr><td><span class="token-name">display-lg</span></td><td>40px</td><td>1.10</td><td>400</td><td>Section titles — Fraunces</td></tr>
+          <tr><td><span class="token-name">display-md</span></td><td>28px</td><td>1.15</td><td>400</td><td>Subtitles — Fraunces</td></tr>
+          <tr><td><span class="token-name">heading-lg</span></td><td>20px</td><td>1.30</td><td>600</td><td>Card headings — Inter Tight</td></tr>
+          <tr><td><span class="token-name">heading-md</span></td><td>16px</td><td>1.40</td><td>600</td><td>Inner headings — Inter Tight</td></tr>
+          <tr><td><span class="token-name">body-md</span></td><td>14px</td><td>1.50</td><td>400</td><td>Default body — Inter Tight</td></tr>
+          <tr><td><span class="token-name">body-sm</span></td><td>13px</td><td>1.50</td><td>400</td><td>Table rows — Inter Tight</td></tr>
+          <tr><td><span class="token-name">label</span></td><td>12px</td><td>1.40</td><td>500</td><td>Labels, metadata (tracking 0.05em, optional caps)</td></tr>
+          <tr><td><span class="token-name">micro</span></td><td>11px</td><td>1.30</td><td>500</td><td>Tags, timestamps</td></tr>
+          <tr><td><span class="token-name">num-hero</span></td><td>48px</td><td>1.00</td><td>500</td><td>Headline numbers — IBM Plex Mono</td></tr>
+          <tr><td><span class="token-name">num-lg</span></td><td>22px</td><td>1.20</td><td>500</td><td>Card numbers — IBM Plex Mono</td></tr>
+          <tr><td><span class="token-name">num-md</span></td><td>14px</td><td>1.40</td><td>500</td><td>Table numbers — IBM Plex Mono</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Inviolable rules for numbers</h3>
+      <ul>
+        <li>Every monetary value is prefixed with <code>R$</code>, thousands separator dot, decimal comma — Brazilian standard.</li>
+        <li>Signed values (gains/losses) always show <code>+</code> or <code>−</code> (typographic minus, not hyphen).</li>
+        <li>Percentages use decimal comma and a suffix <code>%</code> without space.</li>
+        <li>Share quantities are integers, without thousands separator when below ten thousand.</li>
+        <li>Alignment: monetary values are always right-aligned in tables.</li>
+        <li>Tabular digits mandatory in any numeric container.</li>
+      </ul>
+    </section>
+
+    <section id="g-spacing">
+      <h2 class="section-title">4 · Spacing &amp; grid</h2>
+
+      <h3>4.1 Spacing scale (base 4)</h3>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-name">--space-1</span></td><td>4px</td></tr>
+          <tr><td><span class="token-name">--space-2</span></td><td>8px</td></tr>
+          <tr><td><span class="token-name">--space-3</span></td><td>12px</td></tr>
+          <tr><td><span class="token-name">--space-4</span></td><td>16px</td></tr>
+          <tr><td><span class="token-name">--space-6</span></td><td>24px</td></tr>
+          <tr><td><span class="token-name">--space-8</span></td><td>32px</td></tr>
+          <tr><td><span class="token-name">--space-12</span></td><td>48px</td></tr>
+          <tr><td><span class="token-name">--space-16</span></td><td>64px</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Page layout</h3>
+      <p>The desktop layout has three zones:</p>
+      <ul>
+        <li><strong>Sidebar</strong> — fixed, contains the logo, navigation between the three modules, and a persistent current-month exemption indicator.</li>
+        <li><strong>Topbar</strong> — shows the editing month/year with a quick picker and the primary "+ Novo Lançamento" button (shortcut <code>N</code>).</li>
+        <li><strong>Content</strong> — max width 1440px, horizontal padding 40px on screens ≥ 1600px, 24px below that.</li>
+      </ul>
+
+      <h3>4.3 Breakpoints</h3>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-name">--bp-sm</span></td><td>640px</td><td>Mobile — out of scope in v1, reserved</td></tr>
+          <tr><td><span class="token-name">--bp-md</span></td><td>960px</td><td>Landscape tablet</td></tr>
+          <tr><td><span class="token-name">--bp-lg</span></td><td>1280px</td><td>Standard desktop</td></tr>
+          <tr><td><span class="token-name">--bp-xl</span></td><td>1600px</td><td>Wide desktop</td></tr>
+        </tbody>
+      </table>
+      <p>MVP is desktop-first. Below 960px the sidebar collapses and tables scroll horizontally.</p>
+
+      <h3>4.4 Card density</h3>
+      <p>Cards use 24px internal padding. Between cards: 16px (compact grid) or 24px (breathing room). 1px borders with <code>--border-default</code>. Corner radius 10px — modern without descending into the childish 16px+ territory.</p>
+    </section>
+
+    <section id="g-components">
+      <h2 class="section-title">5 · Key components</h2>
+
+      <h3>5.1 Exemption-Status Card (signature element)</h3>
+      <p>The most important component in the product. Lives at the top of the dashboard and as a mini version on the sidebar.</p>
+      <div class="status-card-grid">
+        <div class="status-card-sample">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+            <div class="title">Isenção do mês</div>
+            <span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span>
+          </div>
+          <div class="value">R$ 12.340,00</div>
+          <div class="hint">de <span class="mono">R$ 20.000,00</span> vendidos este mês</div>
+          <div style="margin-top:12px;">
+            <div class="progress" style="height:6px;"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;">
+              <span class="mono" style="color:var(--text-tertiary);">61,7%</span>
+              <span style="color:var(--gain);">Restam <span class="mono">R$ 7.660,00</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="status-card-sample">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+            <div class="title">Isenção do mês</div>
+            <span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Atenção</span>
+          </div>
+          <div class="value">R$ 18.450,00</div>
+          <div class="hint">de <span class="mono">R$ 20.000,00</span> vendidos este mês</div>
+          <div style="margin-top:12px;">
+            <div class="progress" style="height:6px;"><div class="progress-fill" style="width:92.2%;background:var(--warning);"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;">
+              <span class="mono" style="color:var(--text-tertiary);">92,2%</span>
+              <span style="color:var(--warning);">Restam <span class="mono">R$ 1.550,00</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="status-card-sample">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+            <div class="title">Isenção do mês</div>
+            <span class="badge" style="background:var(--loss-soft);color:var(--loss);"><span class="dot" style="background:var(--loss);"></span>Tributável</span>
+          </div>
+          <div class="value">R$ 22.750,00</div>
+          <div class="hint">de <span class="mono">R$ 20.000,00</span> vendidos este mês</div>
+          <div style="margin-top:12px;">
+            <div class="progress" style="height:6px;"><div class="progress-fill" style="width:100%;background:var(--loss);"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;">
+              <span class="mono" style="color:var(--text-tertiary);">113,7%</span>
+              <span style="color:var(--loss);">IR estimado: <span class="mono">R$ 412,50</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="showcase-row">
+        <span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span>
+        <span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Próximo do limite</span>
+        <span class="badge" style="background:var(--loss-soft);color:var(--loss);"><span class="dot" style="background:var(--loss);"></span>Tributável</span>
+      </div>
+      <ul>
+        <li><strong>Exempt (0–80%)</strong> — green bar (<code>--gain</code>), label "ISENTO", help text in <code>--gain</code>.</li>
+        <li><strong>Caution (80–100%)</strong> — yellow bar (<code>--warning</code>), label "PRÓXIMO DO LIMITE", help text in <code>--warning</code>.</li>
+        <li><strong>Taxable (&gt;100%)</strong> — red bar (<code>--loss</code>), label "TRIBUTÁVEL", help text changes to "IR estimado: R$ X (15% sobre R$ Y de lucro)".</li>
+      </ul>
+      <p>The progress bar animates (300ms ease-out) on recalculation.</p>
+
+      <h3>5.2 Transactions Table</h3>
+      <p>Primary visual reference of Module 1. Columns, in order:</p>
+      <p><code>Data │ Ticker │ Tipo │ Qtd │ Preço │ Volume │ PM antes │ PM depois │ L/P realizado │ Vol. mês │ Status</code></p>
+      <ul>
+        <li>Row height 44px.</li>
+        <li>Row hover applies <code>--bg-surface-2</code>.</li>
+        <li>"Tipo" uses colored badges: <em>Compra</em> (neutral), <em>Venda</em> (soft warning), <em>Recompra</em> (soft accent).</li>
+        <li>"L/P realizado" only appears on sales; on buys the cell shows <code>—</code> in <code>--text-disabled</code>.</li>
+        <li>"Status" shows a compact dot: ● green (exempt), ● yellow (caution), ● red (taxable).</li>
+        <li>Sticky header on scroll, background <code>--bg-surface</code>, expanded letter-spacing, uppercase, 11px.</li>
+        <li><strong>Totals row in the footer</strong>: background <code>--bg-surface-2</code>, weight 600, stronger top divider (<code>--border-default</code>).</li>
+      </ul>
+      <p><strong>Inline edit</strong>: double-click any editable cell to open in-place editing. <code>Esc</code> cancels, <code>Enter</code> confirms and recalculates the cascade.</p>
+
+      <h3>5.3 New-Transaction Form (side panel)</h3>
+      <p>Opens as a 420px panel sliding in from the right. Never a centered modal — the side panel preserves the table context behind it.</p>
+      <p><strong>Field order:</strong> Type (segmented: Compra / Venda / Recompra) · Date (default today) · Ticker (autocomplete on existing holdings) · Quantity · Unit price (R$ prefix).</p>
+      <p>
+        <strong>Live-preview panel</strong> below the fields, background <code>--bg-surface-2</code>. Recalculates on every keystroke (150ms debounce) and shows:
+        operation volume, PM before → PM after, monthly volume after operation with progress bar, and resulting fiscal status. <strong>This is the second signature element of the product</strong> — the user sees the fiscal impact before confirming.
+      </p>
+      <p><strong>Mandatory shortcuts:</strong> <code>N</code> (global) opens the panel · <code>Tab</code> moves forward · <code>Enter</code> confirms when valid · <code>Esc</code> closes without saving.</p>
+
+      <h3>5.4 Evolution Chart (Module 2)</h3>
+      <p>Line chart of patrimônio evolution vs. weighted global PM, horizontal axis in months.</p>
+      <ul>
+        <li>Main line: 2px, color <code>--neutral</code>.</li>
+        <li>Secondary line (reference PM): 1px dashed, color <code>--text-tertiary</code>.</li>
+        <li>Area below the main line: gradient from <code>--neutral</code> to transparent, opacity 0.15.</li>
+        <li>No vertical grid. Horizontal grid in 1px <code>--border-subtle</code> lines, max three levels.</li>
+        <li>Hover tooltip: dark floating card with date, patrimônio, variation.</li>
+        <li>Vertical axis formatted as "R$ 120K", not "120.000".</li>
+      </ul>
+
+      <h3>5.5 Badge</h3>
+      <p>Height 22px · padding 2px 8px · radius 6px · micro (11px, weight 500) · letter-spacing 0.05em · uppercase.</p>
+      <div class="showcase-row">
+        <span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span>
+        <span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span>
+        <span class="badge" style="background:rgba(163,230,53,0.13);color:var(--accent);">Recompra</span>
+        <span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span>
+        <span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Atenção</span>
+        <span class="badge" style="background:var(--loss-soft);color:var(--loss);"><span class="dot" style="background:var(--loss);"></span>Tributável</span>
+      </div>
+
+      <h3>5.6 Primary button</h3>
+      <p>Background <code>--accent</code>, text <code>--accent-fg</code>, weight 600, padding 10px 16px, radius 8px.
+      Hover: <code>--accent-hover</code>, translate-y -1px, subtle shadow. Active: translate-y 0. Focus: 2px ring <code>--accent</code> with 2px offset. <strong>Only one primary button visible per screen</strong> — secondary actions use borderless buttons (border <code>--border-default</code>).</p>
+    </section>
+
+    <section id="g-interaction">
+      <h2 class="section-title">6 · Interaction &amp; states</h2>
+      <h3>6.1 Animation durations</h3>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-name">--dur-instant</span></td><td>100ms</td><td>Row hover, color change</td></tr>
+          <tr><td><span class="token-name">--dur-fast</span></td><td>150ms</td><td>Tooltips, badges</td></tr>
+          <tr><td><span class="token-name">--dur-normal</span></td><td>250ms</td><td>Side panels, modals</td></tr>
+          <tr><td><span class="token-name">--dur-slow</span></td><td>400ms</td><td>Page entrance</td></tr>
+        </tbody>
+      </table>
+      <p>Default curves: <code>--ease-out</code>: <code>cubic-bezier(0.22, 1, 0.36, 1)</code> for entrances · <code>--ease-in-out</code>: <code>cubic-bezier(0.65, 0, 0.35, 1)</code> for transformations.</p>
+
+      <h3>6.2 Micro-interactions</h3>
+      <ul>
+        <li><strong>Saving a transaction</strong>: the new row slides into the table with a brief slide+fade animation (400ms) and the status card's progress bar transitions in 300ms.</li>
+        <li><strong>Exemption status change</strong> (e.g. crossing the limit): the card pulses once (scale 1.0 → 1.02 → 1.0, 400ms).</li>
+        <li><strong>Preview calculation</strong>: updated values flash for 200ms in <code>--neutral-soft</code>.</li>
+      </ul>
+
+      <h3>6.3 Focus states</h3>
+      <p>Accessibility is not optional. Every interactive element gets a visible focus ring: <code>outline: 2px solid --accent; outline-offset: 2px; radius inherits</code>.</p>
+
+      <h3>6.4 Empty states</h3>
+      <ul>
+        <li><strong>Transactions table with no entries</strong>: thin-stroke illustration, text "Nenhum lançamento ainda", primary CTA "Registrar primeiro lançamento".</li>
+        <li><strong>Month with no sales in Module 3</strong>: row with <code>--bg-surface-2</code> background and <code>—</code> text in <code>--text-disabled</code>, no exemption badge.</li>
+      </ul>
+
+      <h3>6.5 Error states</h3>
+      <p>Validation errors appear below the field, in <code>--loss</code>, size <code>body-sm</code>. Specific messages, not generic: "Data não pode ser futura" instead of "Valor inválido".</p>
+    </section>
+
+    <section id="g-a11y">
+      <h2 class="section-title">7 · Accessibility</h2>
+      <ul>
+        <li>Minimum AA contrast on all text. Secondary text in <code>--text-secondary</code> on <code>--bg-base</code> reaches 7.1:1 (AAA).</li>
+        <li>All interactive components navigable by keyboard.</li>
+        <li>Global shortcuts documented in a modal opened with <code>?</code>.</li>
+        <li>Screen-reader announcements on the exemption card so changes are vocalized.</li>
+        <li>Explicit semantic table structure.</li>
+        <li>Focus never lost: closing the side panel returns focus to the button that opened it.</li>
+        <li>Color-blind safety: the exemption status never relies on color alone — it also uses icons (<code>✓</code>, <code>⚠</code>, <code>✕</code>).</li>
+      </ul>
+    </section>
+
+    <section id="g-voice">
+      <h2 class="section-title">8 · Voice &amp; tone</h2>
+      <p>
+        PortLens's voice is direct, technical, and does not talk down. The user is an investor who knows what they're
+        doing — the product doesn't explain what income tax is, it assumes you know.
+      </p>
+      <ul>
+        <li>Short sentences, active voice.</li>
+        <li>Numbers always explicit: "R$ 7.660,00 restantes" rather than "ainda resta margem".</li>
+        <li>No slang ("bora!", "show!") or decorative emojis.</li>
+        <li>Correct technical terms: "alienação" is acceptable in formal contexts, "venda" in everyday use. "Competência" instead of "mês" when referring to the fiscal period.</li>
+        <li>Legal notices are neutral: "Mesmo isento, declare no IRPF" — no exclamation, no excessive alert tone.</li>
+      </ul>
+
+      <h3>Examples (product copy, pt-BR)</h3>
+      <table class="token-table">
+        <thead><tr><th>Context</th><th>Good</th><th>Bad</th></tr></thead>
+        <tbody>
+          <tr><td>Exemption bar</td><td><code>R$ 12.340 de R$ 20.000 vendidos este mês</code></td><td><code>Você já vendeu bastante esse mês! 💰</code></td></tr>
+          <tr><td>Error</td><td><code>Data não pode ser posterior a hoje</code></td><td><code>Ops! Algo deu errado.</code></td></tr>
+          <tr><td>Confirmation</td><td><code>Lançamento registrado. PM atualizado para R$ 29,12.</code></td><td><code>Sucesso! ✅</code></td></tr>
+          <tr><td>Tooltip</td><td><code>Lei 11.033/2004. Limite mensal somando todos os tickers.</code></td><td><code>Isso é o limite mágico da isenção!</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="g-iconography">
+      <h2 class="section-title">9 · Iconography</h2>
+      <p>
+        <strong>Style</strong>: 1.5px strokes, uniform line weight, slightly rounded corners, base size 16px. The
+        chosen library must follow these traits — consistency matters more than the specific brand.
+      </p>
+      <ul>
+        <li>Interface icons: 16px, aligned to text baseline.</li>
+        <li>Action icons: 20px.</li>
+        <li>Never colored decoratively — only when they carry semantic meaning (✓ green, ⚠ yellow, ✕ red).</li>
+        <li>Prefer text label to icon-only, except in universally recognized actions (pencil = edit, trash = remove).</li>
+      </ul>
+
+      <h3>Semantic mapping</h3>
+      <table class="token-table">
+        <thead><tr><th>Action</th><th>Visual concept</th></tr></thead>
+        <tbody>
+          <tr><td>New transaction</td><td>Plus sign (<code>+</code>)</td></tr>
+          <tr><td>Buy</td><td>Down arrow, inflow</td></tr>
+          <tr><td>Sell</td><td>Up arrow, outflow</td></tr>
+          <tr><td>Repurchase</td><td>Circular arrow</td></tr>
+          <tr><td>Exempt</td><td>Circle with check</td></tr>
+          <tr><td>Caution</td><td>Triangle with exclamation</td></tr>
+          <tr><td>Taxable</td><td>Octagon with exclamation</td></tr>
+          <tr><td>Edit</td><td>Pencil</td></tr>
+          <tr><td>Remove</td><td>Trash</td></tr>
+          <tr><td>Export</td><td>Down arrow (download)</td></tr>
+          <tr><td>Import PDF</td><td>Document with inbound arrow</td></tr>
+          <tr><td>Import CSV</td><td>Table with inbound arrow</td></tr>
+          <tr><td>Operation pending review</td><td>Clock or question mark</td></tr>
+          <tr><td>Operation with conflict</td><td>Triangle with exclamation (warning)</td></tr>
+          <tr><td>Operation confirmed from import</td><td>Circle with check (gain)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="g-screens-inventory">
+      <h2 class="section-title">10 · Screen inventory &amp; import flow</h2>
+      <p>v1 has four main screens, accessed from the sidebar:</p>
+      <ol>
+        <li><strong>Dashboard / Overview</strong> — entry page, gathers the exemption-status card, monthly metrics, and latest transactions.</li>
+        <li><strong>Lançamentos (Module 1)</strong> — full table of every operation, with filters by competência and ticker.</li>
+        <li><strong>Carteira Atual (Module 2)</strong> — consolidated per-ticker view with evolution chart and sale suggestions.</li>
+        <li><strong>Competências (Module 3)</strong> — month-by-month history with fiscal status, realized gain, and estimated tax.</li>
+      </ol>
+      <p>Supporting states: the new-transaction side panel (overlaid on any screen) and the empty state (first run).</p>
+
+      <h3>10.1 Import flow</h3>
+      <p>
+        Import is a <strong>three-step sequential flow</strong> rendered as a full-screen stepper modal (not a side
+        panel — the data volume needs the whole viewport):
+      </p>
+      <p>
+        <strong>Step 1 — File selection.</strong> The user picks between "Nota de corretagem (PDF)" and "Dados
+        exportados (CSV)". A drop zone is the only affordance — no text field. When a PDF is processed, the system
+        extracts the <strong>brokerage-note number</strong> before anything else. If that number is already in the
+        database, the flow halts before Step 2 and the "note already imported" state is shown (see §10.3). This
+        prevents duplicate imports even when the user re-uploads the same file by mistake.
+      </p>
+      <p>
+        <strong>Step 2 — Review extracted operations.</strong> This is the central, most critical step. The system
+        shows a table of every operation read from the file, headed by the note identification (number, issue date,
+        broker). Each row has an <strong>extraction status</strong> column:
+      </p>
+      <ul>
+        <li><strong>Pronto</strong> (● green): operation extracted confidently, no ambiguity.</li>
+        <li><strong>Revisar</strong> (● yellow): low-confidence read or incomplete field — highlighted editable cell.</li>
+        <li><strong>Conflito</strong> (● red): operation already exists via manual entry with the same fields — the user chooses ignore or replace. This case is residual when the note number is the primary deduplication key.</li>
+      </ul>
+      <p>The user can edit individual cells before confirming. Footer reads: "X operações prontas · Y para revisar · Z conflitos".</p>
+      <p>
+        <strong>Step 3 — Confirm and result.</strong> On confirm, the system processes operations in bulk, persists the
+        note number tied to each operation, and recalculates PM, volume, and exemption status. The screen shows the
+        result: how many were imported, which were skipped, and whether the exemption status of the affected month
+        changed. A CTA takes the user back to Lançamentos with the new operations visible.
+      </p>
+
+      <h3>10.2 Traceability by Note Number</h3>
+      <p>The brokerage-note number is a <strong>traceability metadata</strong> persisted next to each operation imported via PDF. Display and usage rules:</p>
+      <ul>
+        <li>On the Lançamentos table, operations linked to a note show the note number in an optional column (hidden by default, toggled via column settings). When visible, it renders in <code>--text-tertiary</code> so it doesn't compete with primary data.</li>
+        <li>Hovering a row with a linked note shows a compact tooltip: note number, issue date, and broker.</li>
+        <li>Manually-entered operations have no note number — the cell shows <code>—</code> in <code>--text-disabled</code>.</li>
+        <li>The field is read-only — the user cannot edit it after import.</li>
+        <li>CSV export includes the note-number field, preserving traceability on future re-imports.</li>
+      </ul>
+      <p><strong>Note-already-imported state</strong> (halts flow at Step 1): the system shows a warning card with the note number, the date it was imported and how many operations it generated. Two options: "Ver os lançamentos dessa nota" (opens the filtered table) and "Cancelar" (closes the flow). There is no re-import option — the note is already in the base and its operations can be edited individually if needed.</p>
+
+      <h3>10.3 CSV export</h3>
+      <p>Export is not a screen — it's an action available on the Lançamentos page, as a secondary button in the header. It generates the file immediately, with no intermediate confirmation, and shows a success toast for 3 seconds. The exported file includes the note-number field and is the same format accepted by the importer, guaranteeing round-trip compatibility.</p>
+
+      <h3>10.4 Import UX rules</h3>
+      <ul>
+        <li><strong>Deduplication by note number.</strong> For PDFs, the note number is the primary dedup key — checked before any processing. Row-level conflicts are residual and only occur between manual entries and imports.</li>
+        <li><strong>Never silently overwrite.</strong> Any residual conflict requires explicit user decision — the app never auto-resolves.</li>
+        <li><strong>Preview before persist.</strong> No imported operation is saved before Step 3 confirmation. The user can abandon the flow at any time with zero side effects.</li>
+        <li><strong>Read errors are explained.</strong> If the PDF cannot be read, the message names the specific problem: "Número de nota não encontrado no documento" or "Formato de nota não reconhecido" — not "Erro ao processar arquivo".</li>
+        <li><strong>Partial import is valid.</strong> The user can uncheck individual rows before confirming, importing only a subset.</li>
+        <li><strong>Immediate fiscal feedback.</strong> In the Step 2 footer, show the projected impact on the most-affected month's exemption status: "Após importar, Nov/2025 passará de R$ 12.340 para R$ 19.260 vendidos (ainda isento)."</li>
+      </ul>
+    </section>
+
+    <section id="g-checklist">
+      <h2 class="section-title">11 · Quality checklist</h2>
+      <p>Before calling a screen "done", validate:</p>
+      <ul>
+        <li>Current-month exemption status is visible or one click away.</li>
+        <li>Every monetary value is in the monospace family with tabular digits.</li>
+        <li><code>+</code>/<code>−</code> signs on gains and losses, with consistent semantic colors.</li>
+        <li>No value without unit or context.</li>
+        <li>Keyboard focus visible on every interactive element.</li>
+        <li>Main shortcuts (<code>N</code>, <code>Esc</code>, <code>Enter</code>) work.</li>
+        <li>Light theme tested — not a mere color inversion.</li>
+        <li>AA contrast on text, AAA on critical data.</li>
+        <li>Dense tables have row height ≥ 44px.</li>
+        <li>Progress bar animates on change (300ms ease-out).</li>
+        <li>Empty state has a clear CTA.</li>
+        <li>Error messages are specific, not generic.</li>
+        <li>Import flow: no operation is persisted before Step 3 confirmation.</li>
+        <li>PDF: note number is checked before processing — an already-imported note halts the flow at Step 1.</li>
+        <li>Already-imported state shows number, import date, and operation count.</li>
+        <li>Residual import conflicts require explicit user decision — never auto-resolved.</li>
+        <li>Step 2 of import shows note identification on the table header.</li>
+        <li>Step 2 of import shows projected fiscal impact in the footer.</li>
+        <li>Operations imported via PDF show the note number in a hover tooltip.</li>
+        <li>The note-number column on the Lançamentos table is hidden by default and toggleable.</li>
+        <li>CSV export includes the note-number field for round-trip traceability.</li>
+        <li>File-read errors describe the specific problem, not a generic message.</li>
+      </ul>
+    </section>
+
+    <section id="g-out-of-scope">
+      <h2 class="section-title">12 · Out of scope (v1)</h2>
+      <p>To avoid scope creep, the following are explicitly excluded from v1:</p>
+      <ul>
+        <li><strong>Responsiveness below 960px</strong>: handled in v1.1.</li>
+        <li><strong>User theme customization</strong>: only the light/dark toggle.</li>
+        <li><strong>Advanced charts</strong> (candles, heatmaps, IBOV comparison): v2.</li>
+        <li><strong>Three-dimensional / decorative animations</strong>: explicitly rejected — they conflict with the fiscal-clarity principle.</li>
+        <li><strong>Authentication and multi-user</strong>: v2.</li>
+      </ul>
+    </section>
+
+    <!-- ================================================
+         SCREENS
+         ================================================ -->
+    <section id="screens">
+      <div class="section-eyebrow">Screens</div>
+      <h2 class="section-title">Canonical mockups</h2>
+      <p class="lede">
+        Eleven fixed-height (1440×900) frames rendering the production-ready UI. Product copy is in Portuguese by
+        design. Use the table-of-contents links on the left to jump between screens.
+      </p>
+    </section>
+
+    <!-- SCREEN 01 · Dashboard -->
+    <section id="screen-01-dashboard">
+      <div class="screen-meta">
+        <span class="num">01</span>
+        <h3>Dashboard / Overview</h3>
+        <p>Entry page. Exemption card, month metrics, latest transactions.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo">
+              <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <span class="logo-name">PortLens</span>
+            </div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-02-transactions" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div class="isencao-mini">
+              <div class="isencao-mini-inner">
+                <div class="label" style="margin-bottom:5px;">Isenção · Nov</div>
+                <div class="mono" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:9px;">R$ 12.340</div>
+                <div class="progress"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div>
+                <div style="font-size:10px;color:var(--gain);font-weight:500;margin-top:6px;">61% · Isento · restam R$ 7.660</div>
+              </div>
+            </div>
+          </aside>
+          <div class="main">
+            <header class="topbar">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:var(--text-tertiary);">Competência</span>
+                <div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div>
+              </div>
+              <button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button>
+            </header>
+            <main class="content">
+              <div class="page-header">
+                <h1 class="page-title">Visão geral</h1>
+                <span class="mono" style="font-size:12px;color:var(--text-tertiary);">Atualizado 18/11 · 14:32</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;">
+                <div class="card" style="padding:22px;">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+                    <div>
+                      <div class="label">Isenção do mês</div>
+                      <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px;">Limite mensal · Lei 11.033/2004</div>
+                    </div>
+                    <span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span>
+                  </div>
+                  <div class="mono" style="font-size:44px;font-weight:500;letter-spacing:-0.02em;line-height:1;">R$ 12.340,00</div>
+                  <div style="font-size:13px;color:var(--text-secondary);margin-top:8px;">de <span class="mono">R$ 20.000,00</span> vendidos este mês</div>
+                  <div style="margin-top:16px;">
+                    <div class="progress" style="height:6px;"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
+                      <span class="mono" style="color:var(--text-tertiary);">61,7%</span>
+                      <span style="color:var(--gain);">Pode vender mais <span class="mono" style="font-weight:500;">R$ 7.660,00</span> sem IR</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-rows:1fr 1fr;gap:12px;">
+                  <div class="card" style="padding:18px 20px;">
+                    <div class="label">Lucro realizado · Nov</div>
+                    <div class="mono" style="font-size:26px;font-weight:500;color:var(--gain);margin-top:6px;">+ R$ 1.847,20</div>
+                    <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">em 2 vendas</div>
+                  </div>
+                  <div class="card" style="padding:18px 20px;">
+                    <div class="label">IR estimado · Nov</div>
+                    <div class="mono" style="font-size:26px;font-weight:500;color:var(--text-primary);margin-top:6px;">R$ 0,00</div>
+                    <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">enquanto isento</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="overflow:hidden;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border-default);">
+                  <div>
+                    <div style="font-size:14px;font-weight:600;">Últimos lançamentos</div>
+                    <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;">Novembro · 4 operações</div>
+                  </div>
+                  <a href="#screen-02-transactions" style="color:var(--neutral);font-size:12px;font-weight:500;text-decoration:none;">Ver todos →</a>
+                </div>
+                <table>
+                  <thead><tr><th>Data</th><th>Ticker</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço</th><th class="r">Volume</th><th class="r">L/P</th><th class="r">Vol. mês</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">03/11</span></td><td><span class="mono" style="font-weight:500;">PETR4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">300</span></td><td class="r"><span class="mono">R$ 28,50</span></td><td class="r"><span class="mono">R$ 8.550,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono" style="color:var(--text-tertiary);">—</span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">12/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">R$ 32,10</span></td><td class="r"><span class="mono">R$ 6.420,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ R$ 842,00</span></td><td class="r"><span class="mono">R$ 6.420</span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">13/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:rgba(163,230,53,0.13);color:var(--accent);">Recompra</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">R$ 32,15</span></td><td class="r"><span class="mono">R$ 6.430,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono">R$ 6.420</span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">18/11</span></td><td><span class="mono" style="font-weight:500;">VALE3</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">R$ 59,20</span></td><td class="r"><span class="mono">R$ 5.920,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ R$ 1.005,20</span></td><td class="r"><span class="mono" style="font-weight:600;">R$ 12.340</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-02-transactions">
+      <div class="screen-meta">
+        <span class="num">02</span>
+        <h3>Transactions</h3>
+        <p>Complete operation ledger with monthly metrics, filters, CSV export, and the full tax-aware table.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo">
+              <div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <span class="logo-name">PortLens</span>
+            </div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-02-transactions" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div class="isencao-mini">
+              <div class="isencao-mini-inner">
+                <div class="label" style="margin-bottom:5px;">Isenção · Nov</div>
+                <div class="mono" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:9px;">R$ 12.340</div>
+                <div class="progress"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div>
+                <div style="font-size:10px;color:var(--gain);font-weight:500;margin-top:6px;">61% · Isento · restam R$ 7.660</div>
+              </div>
+            </div>
+          </aside>
+          <div class="main">
+            <header class="topbar">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:var(--text-tertiary);">Competência</span>
+                <div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div>
+              </div>
+              <button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button>
+            </header>
+            <main class="content">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                <div>
+                  <div class="label">Módulo 1</div>
+                  <h1 class="page-title">Lançamentos</h1>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <div class="tab-group"><div class="tab">Todas</div><div class="tab active">Nov/2025</div><div class="tab">Out/2025</div></div>
+                  <button class="btn-secondary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h8M4 6h4M5 9h2"/></svg>Filtros</button>
+                  <button class="btn-secondary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9.5h8M6 2v6M3.5 5.5L6 8l2.5-2.5"/></svg>Exportar CSV</button>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div class="card" style="padding:14px 16px;"><div class="label">Operações</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--text-primary);margin-top:4px;">7</div></div>
+                <div class="card" style="padding:14px 16px;"><div class="label">Volume vendido</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--text-primary);margin-top:4px;">R$ 12.340</div></div>
+                <div class="card" style="padding:14px 16px;"><div class="label">L/P realizado</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--gain);margin-top:4px;">+ R$ 1.847</div></div>
+                <div class="card" style="padding:14px 16px;border-color:rgba(52,211,153,0.35);"><div class="label" style="color:var(--gain);">Status fiscal</div><div style="display:flex;align-items:center;gap:7px;margin-top:5px;"><span class="dot" style="width:7px;height:7px;background:var(--gain);"></span><span style="font-size:14px;font-weight:600;color:var(--gain);">Isento</span></div></div>
+              </div>
+              <div class="card" style="overflow:hidden;">
+                <table>
+                  <thead><tr><th>Data</th><th>Ticker</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço</th><th class="r">Volume</th><th class="r">PM antes</th><th class="r">PM depois</th><th class="r">L/P</th><th class="r">Vol. mês</th><th class="r">Status</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">03/11</span></td><td><span class="mono" style="font-weight:500;">PETR4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">300</span></td><td class="r"><span class="mono">28,50</span></td><td class="r"><span class="mono">8.550,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">27,80</span></td><td class="r"><span class="mono">28,15</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono" style="color:var(--text-tertiary);">—</span></td><td class="r"><span class="dot" style="background:var(--text-disabled);"></span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">08/11</span></td><td><span class="mono" style="font-weight:500;">VALE3</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">58,00</span></td><td class="r"><span class="mono">5.800,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">55,40</span></td><td class="r"><span class="mono">56,20</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono" style="color:var(--text-tertiary);">—</span></td><td class="r"><span class="dot" style="background:var(--text-disabled);"></span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">12/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">32,10</span></td><td class="r"><span class="mono">6.420,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">27,89</span></td><td class="r"><span class="mono">27,89</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 842,00</span></td><td class="r"><span class="mono">6.420</span></td><td class="r"><span class="dot" style="background:var(--gain);"></span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">13/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:rgba(163,230,53,0.13);color:var(--accent);">Recompra</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">32,15</span></td><td class="r"><span class="mono">6.430,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">27,89</span></td><td class="r"><span class="mono">30,02</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono">6.420</span></td><td class="r"><span class="dot" style="background:var(--gain);"></span></td></tr>
+                    <tr style="background:var(--bg-surface-2);"><td style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-secondary);">18/11</span></td><td style="background:var(--bg-surface-2);"><span class="mono" style="font-weight:500;">VALE3</span></td><td style="background:var(--bg-surface-2);"><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">100</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">59,20</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">5.920,00</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-secondary);">49,15</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">49,15</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--gain);">+ 1.005,20</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">12.340</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="dot" style="background:var(--gain);"></span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">22/11</span></td><td><span class="mono" style="font-weight:500;">BBAS3</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">150</span></td><td class="r"><span class="mono">28,90</span></td><td class="r"><span class="mono">4.335,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">25,10</span></td><td class="r"><span class="mono">26,90</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono">12.340</span></td><td class="r"><span class="dot" style="background:var(--gain);"></span></td></tr>
+                    <tr><td><span class="mono" style="color:var(--text-secondary);">25/11</span></td><td><span class="mono" style="font-weight:500;">ITSA4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">400</span></td><td class="r"><span class="mono">9,80</span></td><td class="r"><span class="mono">3.920,00</span></td><td class="r"><span class="mono" style="color:var(--text-secondary);">9,15</span></td><td class="r"><span class="mono">9,45</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono">12.340</span></td><td class="r"><span class="dot" style="background:var(--gain);"></span></td></tr>
+                  </tbody>
+                  <tfoot><tr><td><span class="label">Totais</span></td><td></td><td></td><td class="r"><span class="mono">—</span></td><td class="r"><span class="mono">—</span></td><td class="r"><span class="mono">R$ 41.375,00</span></td><td class="r"></td><td class="r"></td><td class="r"><span class="mono" style="color:var(--gain);">+ 1.847,20</span></td><td class="r"><span class="mono">12.340</span></td><td class="r"></td></tr></tfoot>
+                </table>
+                <div style="padding:10px 14px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);"><span>7 operações · duplo-clique em qualquer célula para editar</span><span class="mono">Última atualização: 18/11 14:32</span></div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-03-portfolio">
+      <div class="screen-meta">
+        <span class="num">03</span>
+        <h3>Current Portfolio</h3>
+        <p>Per-ticker holdings, patrimônio evolution, and tax-safe sale suggestions based on remaining monthly margin.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo"><div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="logo-name">PortLens</span></div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-02-transactions" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div class="isencao-mini"><div class="isencao-mini-inner"><div class="label" style="margin-bottom:5px;">Isenção · Nov</div><div class="mono" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:9px;">R$ 12.340</div><div class="progress"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div><div style="font-size:10px;color:var(--gain);font-weight:500;margin-top:6px;">61% · Isento · restam R$ 7.660</div></div></div>
+          </aside>
+          <div class="main">
+            <header class="topbar"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;color:var(--text-tertiary);">Competência</span><div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div></div><button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button></header>
+            <main class="content">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;"><div><div class="label">Módulo 2</div><h1 class="page-title">Carteira atual</h1></div><span class="mono" style="font-size:12px;color:var(--text-tertiary);">Cotações · 18/11 15:40</span></div>
+              <div style="display:grid;grid-template-columns:340px 1fr;gap:14px;">
+                <div class="card" style="padding:22px;"><div class="label">Patrimônio total</div><div class="mono" style="font-size:44px;font-weight:500;line-height:1;letter-spacing:-0.02em;margin-top:8px;">R$ 48.920</div><div style="display:flex;align-items:center;gap:10px;margin-top:6px;"><span class="mono" style="color:var(--gain);font-size:14px;font-weight:500;">+ R$ 3.842,50</span><span style="font-size:12px;color:var(--text-tertiary);">desde o início</span></div><div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border-subtle);display:grid;grid-template-columns:1fr 1fr;gap:16px;"><div><div class="label">Rentabilidade</div><div class="mono" style="color:var(--gain);font-size:18px;font-weight:500;margin-top:4px;">+ 8,52%</div></div><div><div class="label">Ativos</div><div class="mono" style="color:var(--text-primary);font-size:18px;font-weight:500;margin-top:4px;">5 tickers</div></div></div></div>
+                <div class="card" style="padding:18px 20px;display:flex;flex-direction:column;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><div class="label">Evolução patrimonial</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Últimos 12 meses</div></div><div style="display:flex;gap:14px;font-size:11px;"><span style="display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);"><span style="width:16px;height:2px;background:var(--neutral);display:inline-block;border-radius:2px;"></span>Patrimônio</span><span style="display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);"><span style="width:16px;height:1px;border-top:1px dashed var(--text-tertiary);display:inline-block;"></span>PM ponderado</span></div></div><svg viewBox="0 0 480 160" style="width:100%;height:160px;overflow:visible;" preserveAspectRatio="none"><defs><linearGradient id="grad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#60A5FA" stop-opacity="0.2"/><stop offset="100%" stop-color="#60A5FA" stop-opacity="0"/></linearGradient></defs><line x1="0" y1="30" x2="480" y2="30" stroke="#1F2228" stroke-width="1"/><line x1="0" y1="80" x2="480" y2="80" stroke="#1F2228" stroke-width="1"/><line x1="0" y1="130" x2="480" y2="130" stroke="#1F2228" stroke-width="1"/><path d="M0 120 L44 114 L88 102 L132 108 L176 88 L220 80 L264 84 L308 66 L352 58 L396 50 L440 44 L480 38 L480 160 L0 160 Z" fill="url(#grad)"/><path d="M0 120 L44 114 L88 102 L132 108 L176 88 L220 80 L264 84 L308 66 L352 58 L396 50 L440 44 L480 38" stroke="#60A5FA" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M0 105 L480 74" stroke="#6B7280" stroke-width="1" fill="none" stroke-dasharray="4 3"/><text x="474" y="34" fill="#6B7280" font-size="10" text-anchor="end" font-family="IBM Plex Mono">R$ 50K</text><text x="474" y="84" fill="#6B7280" font-size="10" text-anchor="end" font-family="IBM Plex Mono">R$ 40K</text><text x="474" y="134" fill="#6B7280" font-size="10" text-anchor="end" font-family="IBM Plex Mono">R$ 30K</text></svg><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary);margin-top:6px;font-family:'IBM Plex Mono',monospace;"><span>Dez/24</span><span>Fev/25</span><span>Abr/25</span><span>Jun/25</span><span>Ago/25</span><span>Nov/25</span></div></div>
+              </div>
+              <div class="card" style="overflow:hidden;"><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border-default);"><div><div style="font-size:14px;font-weight:600;">Posições por ativo</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;">Sugestões respeitam a margem de <span class="mono">R$ 7.660</span> restante no mês</div></div></div><table><thead><tr><th>Ticker</th><th class="r">Qtd</th><th class="r">PM</th><th class="r">Cotação</th><th class="r">Valor merc.</th><th class="r">Rent.</th><th class="r">Sugest. venda</th></tr></thead><tbody><tr><td><span class="mono" style="font-weight:500;">PETR4</span></td><td class="r"><span class="mono">300</span></td><td class="r"><span class="mono">28,15</span></td><td class="r"><span class="mono">31,80</span></td><td class="r"><span class="mono">R$ 9.540,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 12,96%</span></td><td class="r"><span class="mono" style="color:var(--accent);font-weight:500;">240 un · R$ 7.632</span></td></tr><tr><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">30,02</span></td><td class="r"><span class="mono">33,40</span></td><td class="r"><span class="mono">R$ 6.680,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 11,26%</span></td><td class="r"><span class="mono" style="color:var(--accent);font-weight:500;">200 un · R$ 6.680</span></td></tr><tr><td><span class="mono" style="font-weight:500;">VALE3</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">49,15</span></td><td class="r"><span class="mono">62,40</span></td><td class="r"><span class="mono">R$ 6.240,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 26,96%</span></td><td class="r"><span class="mono" style="color:var(--accent);font-weight:500;">100 un · R$ 6.240</span></td></tr><tr><td><span class="mono" style="font-weight:500;">BBAS3</span></td><td class="r"><span class="mono">150</span></td><td class="r"><span class="mono">26,90</span></td><td class="r"><span class="mono">25,20</span></td><td class="r"><span class="mono">R$ 3.780,00</span></td><td class="r"><span class="mono" style="color:var(--loss);">− 6,32%</span></td><td class="r"><span class="mono" style="color:var(--text-tertiary);">aguardar</span></td></tr><tr><td><span class="mono" style="font-weight:500;">ITSA4</span></td><td class="r"><span class="mono">400</span></td><td class="r"><span class="mono">9,45</span></td><td class="r"><span class="mono">10,85</span></td><td class="r"><span class="mono">R$ 4.340,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 14,81%</span></td><td class="r"><span class="mono" style="color:var(--accent);font-weight:500;">400 un · R$ 4.340</span></td></tr></tbody><tfoot><tr><td><span class="label">Total</span></td><td class="r"><span class="mono">—</span></td><td class="r"><span class="mono">—</span></td><td class="r"><span class="mono">—</span></td><td class="r"><span class="mono">R$ 30.580,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 12,42%</span></td><td class="r"></td></tr></tfoot></table><div style="padding:10px 14px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-tertiary);border-top:1px solid var(--border-subtle);"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.01"/></svg>Sugestões consideram ordem decrescente de ganho e margem restante do mês. Cotações informadas manualmente.</div></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-04-summary">
+      <div class="screen-meta">
+        <span class="num">04</span>
+        <h3>Monthly Summary (Competências)</h3>
+        <p>Month-by-month fiscal history showing sale volume, exemption status, repurchases, realized gains, and estimated IR.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo"><div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="logo-name">PortLens</span></div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-02-transactions" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div class="isencao-mini"><div class="isencao-mini-inner"><div class="label" style="margin-bottom:5px;">Isenção · Nov</div><div class="mono" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:9px;">R$ 12.340</div><div class="progress"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div><div style="font-size:10px;color:var(--gain);font-weight:500;margin-top:6px;">61% · Isento · restam R$ 7.660</div></div></div>
+          </aside>
+          <div class="main">
+            <header class="topbar"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;color:var(--text-tertiary);">Competência</span><div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div></div><button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button></header>
+            <main class="content">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;"><div><div class="label">Módulo 3</div><h1 class="page-title">Competências</h1></div><div class="tab-group"><div class="tab active">2025</div><div class="tab">2024</div><div class="tab">Todos</div></div></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;"><div class="card" style="padding:16px 18px;"><div class="label">Volume vendido · ano</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--text-primary);margin-top:6px;">R$ 148.620</div></div><div class="card" style="padding:16px 18px;"><div class="label">Lucro realizado · ano</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--gain);margin-top:6px;">+ R$ 18.940</div></div><div class="card" style="padding:16px 18px;"><div class="label">IR a pagar · ano</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--warning);margin-top:6px;">R$ 412,50</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:3px;">apenas Jul/2025</div></div><div class="card" style="padding:16px 18px;"><div class="label">Meses isentos</div><div class="mono" style="font-size:22px;font-weight:500;color:var(--text-primary);margin-top:6px;">10 de 11</div></div></div>
+              <div class="card" style="overflow:hidden;"><table><thead><tr><th>Mês</th><th>Volume vendido</th><th>Status</th><th class="r">Qtd. vend.</th><th class="r">Qtd. recomp.</th><th class="r">Lucro</th><th class="r">IR estim.</th></tr></thead><tbody><tr><td><span class="mono" style="font-weight:500;">Jan/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:46%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 9.240</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">480</span></td><td class="r"><span class="mono">380</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 1.120,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Fev/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:73%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 14.650</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">680</span></td><td class="r"><span class="mono">680</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 2.340,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Mar/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:38%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 7.620</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">300</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 890,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Abr/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:89%;background:var(--warning);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 17.840</span></div></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Atenção</span></td><td class="r"><span class="mono">760</span></td><td class="r"><span class="mono">760</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 3.210,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Mai/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:56%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 11.240</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">450</span></td><td class="r"><span class="mono">350</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 1.650,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Jun/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:65%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 13.000</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">520</span></td><td class="r"><span class="mono">520</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 2.040,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr style="background:rgba(248,113,113,0.04);"><td style="background:rgba(248,113,113,0.04);"><span class="mono" style="font-weight:500;">Jul/2025</span></td><td style="background:rgba(248,113,113,0.04);"><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:100%;background:var(--loss);"></div></div><span class="mono" style="color:var(--text-primary);">R$ 22.750</span></div></td><td style="background:rgba(248,113,113,0.04);"><span class="badge" style="background:var(--loss-soft);color:var(--loss);"><span class="dot" style="background:var(--loss);"></span>Tributável</span></td><td class="r" style="background:rgba(248,113,113,0.04);"><span class="mono">900</span></td><td class="r" style="background:rgba(248,113,113,0.04);"><span class="mono">400</span></td><td class="r" style="background:rgba(248,113,113,0.04);"><span class="mono" style="color:var(--gain);">+ 2.750,00</span></td><td class="r" style="background:rgba(248,113,113,0.04);"><span class="mono" style="color:var(--loss);font-weight:600;">R$ 412,50</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Ago/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:42%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 8.430</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">320</span></td><td class="r"><span class="mono">320</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 980,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Set/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:72%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 14.420</span></div></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r"><span class="mono">600</span></td><td class="r"><span class="mono">500</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 1.820,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr><td><span class="mono" style="font-weight:500;">Out/2025</span></td><td><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:84%;background:var(--warning);"></div></div><span class="mono" style="color:var(--text-secondary);">R$ 16.890</span></div></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Atenção</span></td><td class="r"><span class="mono">720</span></td><td class="r"><span class="mono">620</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 2.250,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr><tr style="background:var(--bg-surface-2);border-left:2px solid var(--accent);"><td style="background:var(--bg-surface-2);border-left:2px solid var(--accent);padding-left:12px;"><span class="mono" style="font-weight:500;">Nov/2025</span><span class="badge" style="background:rgba(163,230,53,0.15);color:var(--accent);font-size:9px;padding:1px 5px;margin-left:6px;">Atual</span></td><td style="background:var(--bg-surface-2);"><div style="display:flex;align-items:center;gap:10px;"><div class="progress-mini"><div class="progress-mini-fill" style="width:62%;background:var(--gain);"></div></div><span class="mono" style="color:var(--text-primary);">R$ 12.340</span></div></td><td style="background:var(--bg-surface-2);"><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Isento</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">300</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">200</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--gain);">+ 1.847,20</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-disabled);">—</span></td></tr></tbody></table><div style="padding:10px 14px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-tertiary);border-top:1px solid var(--border-subtle);"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.01"/></svg>IR calculado em 15% sobre o lucro realizado quando o volume mensal ultrapassa R$ 20.000. Mesmo meses isentos devem ser declarados no IRPF.</div></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-05-new">
+      <div class="screen-meta">
+        <span class="num">05</span>
+        <h3>New Transaction / Side Panel</h3>
+        <p>Right-side entry flow with a live fiscal preview, keeping the current dashboard context visible behind it.</p>
+      </div>
+      <div class="screen screen-frame panel-host">
+        <div class="app dimmed">
+          <aside class="sidebar">
+            <div class="logo">
+              <div class="logo-icon">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <span class="logo-name">PortLens</span>
+            </div>
+            <a href="#screen-01-dashboard" class="nav-item active">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+              Visão geral
+            </a>
+            <a href="#screen-02-transactions" class="nav-item">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>
+              Lançamentos
+            </a>
+          </aside>
+          <div class="main">
+            <header class="topbar">
+              <span style="font-size:13px;color:var(--text-tertiary);">Competência Nov/2025</span>
+            </header>
+            <main class="content">
+              <h1 class="page-title" style="font-size:30px;">Visão geral</h1>
+              <div class="card" style="padding:22px;">
+                <div class="label">Isenção do mês</div>
+                <div class="mono" style="font-size:40px;font-weight:500;margin-top:8px;">R$ 12.340,00</div>
+                <div style="height:6px;background:var(--bg-surface-3);border-radius:999px;margin-top:14px;overflow:hidden;">
+                  <div style="width:61.7%;height:100%;border-radius:999px;background:var(--gain);"></div>
+                </div>
+              </div>
+              <div class="card" style="height:160px;"></div>
+            </main>
+          </div>
+        </div>
+        <div class="overlay"></div>
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="label">Novo</div>
+              <div style="font-family:'Fraunces',Georgia,serif;font-size:22px;letter-spacing:-0.01em;margin-top:2px;">Lançamento</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;color:var(--text-tertiary);padding:2px 7px;background:var(--bg-surface-2);border-radius:4px;font-family:'IBM Plex Mono',monospace;">Esc</span>
+              <div style="width:28px;height:28px;border-radius:6px;background:var(--bg-surface-2);display:flex;align-items:center;justify-content:center;cursor:default;">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div><label class="field-label">Tipo de operação</label><div class="segmented"><div class="seg-opt">Compra</div><div class="seg-opt active">Venda</div><div class="seg-opt">Recompra</div></div></div>
+            <div><label class="field-label">Data</label><div class="input" style="display:flex;align-items:center;justify-content:space-between;"><span>18/11/2025</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="2" y="3" width="10" height="9" rx="1"/><path d="M2 6h10M5 1.5v2M9 1.5v2"/></svg></div></div>
+            <div><label class="field-label">Ticker</label><div class="input focused" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:500;">VALE3</span><span style="color:var(--text-disabled);font-size:11px;">· Vale S.A. ON</span></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:12px;"><div><label class="field-label">Quantidade</label><div class="input">100</div></div><div><label class="field-label">Preço unitário</label><div class="input" style="display:flex;align-items:center;gap:6px;"><span style="color:var(--text-tertiary);">R$</span><span>59,20</span></div></div></div>
+            <div class="preview-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><span class="label" style="color:var(--text-secondary);">Preview em tempo real</span><span style="width:7px;height:7px;background:var(--gain);border-radius:50%;box-shadow:0 0 8px rgba(52,211,153,0.6);display:inline-block;"></span></div>
+              <div class="preview-grid"><div><div class="preview-val-label">Volume</div><div class="preview-val" style="color:var(--text-primary);">R$ 5.920,00</div></div><div><div class="preview-val-label">L/P da operação</div><div class="preview-val" style="color:var(--gain);">+ R$ 1.005,20</div></div></div>
+              <div style="padding:10px 12px;background:var(--bg-base);border-radius:8px;margin-bottom:12px;"><div class="preview-val-label" style="margin-bottom:5px;">PM antes → PM depois</div><div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="color:var(--text-secondary);font-size:13px;">R$ 49,15</span><svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M1 5h11M9 1l3 4-3 4"/></svg><span class="mono" style="color:var(--text-primary);font-size:13px;font-weight:500;">R$ 49,15</span><span style="font-size:10px;color:var(--text-tertiary);">(inalterado)</span></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span class="preview-val-label">Volume do mês após operação</span><span class="mono" style="font-size:10px;color:var(--text-secondary);">62%</span></div><div style="height:6px;background:var(--bg-base);border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="width:62%;height:100%;background:var(--gain);border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;align-items:center;"><span class="mono" style="font-size:13px;font-weight:500;">R$ 12.340,00 / R$ 20.000,00</span><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;background:var(--gain-soft);color:var(--gain);font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;"><span style="width:5px;height:5px;background:var(--gain);border-radius:50%;"></span>Permanece isento</span></div></div>
+              <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-default);display:flex;align-items:center;gap:6px;color:var(--gain);font-size:12px;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l3 3 5-6"/></svg>Operação sem IR · restam <span class="mono" style="font-weight:500;margin-left:3px;">R$ 7.660,00</span> de margem</div>
+            </div>
+          </div>
+          <div class="panel-footer"><div class="btn-cancel">Cancelar</div><div class="btn-confirm">Registrar lançamento<span class="kbd">Enter</span></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="screen-06-empty">
+      <div class="screen-meta">
+        <span class="num">06</span>
+        <h3>Empty State</h3>
+        <p>First-run state that pushes the user toward either manual entry or import without changing the main app shell.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo"><div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="logo-name">PortLens</span></div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-02-transactions" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div style="margin-top:auto;padding-top:14px;"><div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:13px;"><div class="label" style="margin-bottom:5px;">Isenção · Nov</div><div class="mono" style="font-size:14px;font-weight:500;color:var(--text-disabled);">Sem dados</div></div></div>
+          </aside>
+          <div class="main">
+            <header class="topbar"><div class="topbar-context"><span style="font-size:13px;color:var(--text-tertiary);">Competência</span><div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div></div><button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button></header>
+            <main class="content">
+              <div><div class="label">Bem-vindo</div><h1 class="page-title">PortLens</h1></div>
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:14px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;"><svg width="172" height="124" viewBox="0 0 172 124" fill="none" style="margin-bottom:28px;"><rect x="20" y="24" width="132" height="84" rx="4" stroke="#2A2E37" stroke-width="1"/><line x1="20" y1="40" x2="152" y2="40" stroke="#2A2E37" stroke-width="1"/><circle cx="30" cy="32" r="2" fill="#2A2E37"/><circle cx="38" cy="32" r="2" fill="#2A2E37"/><circle cx="46" cy="32" r="2" fill="#2A2E37"/><line x1="56" y1="40" x2="56" y2="108" stroke="#2A2E37" stroke-width="1"/><line x1="88" y1="40" x2="88" y2="108" stroke="#2A2E37" stroke-width="1"/><line x1="120" y1="40" x2="120" y2="108" stroke="#2A2E37" stroke-width="1"/><line x1="20" y1="60" x2="152" y2="60" stroke="#1F2228" stroke-width="1"/><line x1="20" y1="76" x2="152" y2="76" stroke="#1F2228" stroke-width="1"/><line x1="20" y1="92" x2="152" y2="92" stroke="#1F2228" stroke-width="1"/><circle cx="86" cy="74" r="20" stroke="#A3E635" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/><path d="M86 65 L86 83 M77 74 L95 74" stroke="#A3E635" stroke-width="1.8" stroke-linecap="round"/><rect x="32" y="8" width="108" height="10" rx="3" stroke="#2A2E37" stroke-width="1"/><rect x="34" y="10" width="4" height="6" rx="1" fill="#34D399" opacity="0.3"/></svg><h2 style="font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:400;letter-spacing:-0.01em;text-align:center;max-width:460px;line-height:1.25;">Sua carteira começa em branco</h2><p style="color:var(--text-secondary);font-size:14px;text-align:center;max-width:440px;margin-top:10px;line-height:1.6;">Registre seu primeiro lançamento para que o PortLens calcule automaticamente preço médio, volume acumulado do mês e seu status de isenção.</p><div style="margin-top:26px;display:flex;align-items:center;gap:12px;"><button class="btn-primary-lg"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M7 2v10M2 7h10"/></svg>Registrar primeiro lançamento<span class="kbd" style="font-size:11px;padding:1px 6px;">N</span></button></div><div style="margin-top:16px;font-size:12px;color:var(--text-tertiary);text-align:center;">ou <a href="#screen-07-import-1" style="color:var(--text-secondary);text-decoration:underline;text-underline-offset:3px;">importe de uma nota de corretagem ou planilha</a></div></div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"><div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:16px 18px;"><div style="width:30px;height:30px;border-radius:8px;background:var(--gain-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#34D399" stroke-width="1.5"><path d="M3 7l3 3 5-6"/></svg></div><div style="font-size:13px;font-weight:600;margin-bottom:5px;">Cálculo automático</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">PM, volume acumulado e L/P calculados a cada lançamento.</div></div><div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:16px 18px;"><div style="width:30px;height:30px;border-radius:8px;background:var(--neutral-soft);display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#60A5FA" stroke-width="1.5"><rect x="2" y="3" width="10" height="9" rx="1"/><path d="M2 6h10"/></svg></div><div style="font-size:13px;font-weight:600;margin-bottom:5px;">Limite mensal acompanhado</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">Alertas quando seu volume se aproxima de R$ 20.000.</div></div><div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:16px 18px;"><div style="width:30px;height:30px;border-radius:8px;background:rgba(163,230,53,0.13);display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#A3E635" stroke-width="1.5"><path d="M7 2v10M3 6l4-4 4 4"/></svg></div><div style="font-size:13px;font-weight:600;margin-bottom:5px;">Sugestões de venda</div><div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">Quantidade ideal para elevar o PM sem ultrapassar a isenção.</div></div></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-07-import-1">
+      <div class="screen-meta">
+        <span class="num">07</span>
+        <h3>Import / Step 1 / File Selection</h3>
+        <p>Import mode selection and upload drop zone, with note-number deduplication explained before any processing starts.</p>
+      </div>
+      <div class="screen screen-frame modal-host">
+        <div class="modal" style="width:700px;max-height:90%;">
+          <div class="modal-header"><div><div class="label">Importação</div><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;letter-spacing:-0.01em;margin-top:2px;">Selecionar arquivo</div></div><a href="#screen-02-transactions" style="width:30px;height:30px;border-radius:7px;background:var(--bg-surface-2);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;text-decoration:none;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg></a></div>
+          <div class="stepper"><div class="step"><div class="step-num active">1</div><span class="step-label active">Arquivo</span></div><div class="step-line"></div><div class="step"><div class="step-num pending">2</div><span class="step-label pending">Revisão</span></div><div class="step-line"></div><div class="step"><div class="step-num pending">3</div><span class="step-label pending">Confirmar</span></div></div>
+          <div class="modal-body">
+            <div style="margin-bottom:24px;"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Escolha o tipo de importação</div><div style="font-size:13px;color:var(--text-secondary);">Selecione o formato de dados que deseja importar.</div></div>
+            <div class="option-grid"><div class="option-card selected"><div class="option-icon" style="background:rgba(96,165,250,0.12);"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#60A5FA" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg></div><div class="option-title">Nota de corretagem</div><div class="option-desc">Arquivo PDF emitido pela sua corretora. O sistema extrai as operações automaticamente.</div><span class="option-tag recommended">Recomendado</span></div><div class="option-card"><div class="option-icon" style="background:var(--bg-surface-3);"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="16" height="16" rx="2"/><path d="M3 9h16M9 4v16"/></svg></div><div class="option-title">Dados exportados (CSV)</div><div class="option-desc">Arquivo exportado pelo próprio PortLens. Útil para migração e backup entre ambientes.</div><span class="option-tag">Formato PortLens</span></div></div>
+            <div class="dropzone"><div class="dropzone-icon"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H3a2 2 0 01-2-2v-4M17 8l-6-6-6 6M11 2v13"/></svg></div><div style="font-size:14px;font-weight:500;color:var(--text-primary);">Arraste o arquivo PDF aqui</div><div style="font-size:12px;color:var(--text-tertiary);">ou clique para selecionar do computador</div><div style="font-size:11px;color:var(--text-disabled);margin-top:4px;">Apenas arquivos PDF · Máx. 10 MB</div></div>
+            <div style="margin-top:14px;padding:12px 14px;background:var(--bg-surface-2);border-radius:8px;display:flex;align-items:flex-start;gap:10px;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--neutral)" stroke-width="1.5" style="margin-top:1px;flex-shrink:0;"><circle cx="7" cy="7" r="6"/><path d="M7 4v4M7 9.5v.01"/></svg><div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">O número da nota de corretagem é verificado antes do processamento. Se a nota já tiver sido importada, o fluxo será interrompido para evitar duplicações.</div></div>
+          </div>
+          <div class="modal-footer"><a href="#screen-02-transactions" class="btn-cancel">Cancelar</a><a href="#screen-08-import-2" class="btn-next" style="text-decoration:none;color:var(--accent-fg);">Continuar<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M2 6h8M6 2l4 4-4 4"/></svg></a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-08-import-2">
+      <div class="screen-meta">
+        <span class="num">08</span>
+        <h3>Import / Step 2 / Review</h3>
+        <p>Central review step with extraction statuses, editable ambiguities, residual conflicts, and projected fiscal impact.</p>
+      </div>
+      <div class="screen screen-frame modal-host">
+        <div class="modal" style="width:900px;max-height:90%;">
+          <div class="modal-header"><div><div class="label">Importação · Nota de corretagem</div><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;letter-spacing:-0.01em;margin-top:2px;">Revisão das operações extraídas</div></div><div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="font-size:11px;color:var(--text-tertiary);">nota-corretagem-nov2025.pdf</span><a href="#screen-02-transactions" style="width:30px;height:30px;border-radius:7px;background:var(--bg-surface-2);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;text-decoration:none;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg></a></div></div>
+          <div class="stepper"><div class="step"><div class="step-num done"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div><span style="font-size:12px;color:var(--text-tertiary);font-weight:500;">Arquivo</span></div><div class="step-line"></div><div class="step"><div class="step-num active">2</div><span class="step-label active">Revisão</span></div><div class="step-line"></div><div class="step"><div class="step-num pending">3</div><span class="step-label pending">Confirmar</span></div></div>
+          <div class="summary-bar"><span style="font-size:12px;color:var(--text-secondary);">8 operações extraídas:</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gain);font-weight:500;"><span class="dot" style="background:var(--gain);"></span>5 prontas</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--warning);font-weight:500;"><span class="dot" style="background:var(--warning);"></span>2 para revisar</span><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--loss);font-weight:500;"><span class="dot" style="background:var(--loss);"></span>1 conflito</span><span style="margin-left:auto;font-size:11px;color:var(--text-tertiary);">Desmarque linhas para excluir da importação</span></div>
+          <div class="table-wrap"><table><thead><tr><th style="width:32px;"></th><th>Data</th><th>Ticker</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço</th><th class="r">Volume</th><th>Status</th><th>Ação</th></tr></thead><tbody><tr><td><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td><span class="mono" style="color:var(--text-secondary);">03/11</span></td><td><span class="mono" style="font-weight:500;">PETR4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">300</span></td><td class="r"><span class="mono">28,50</span></td><td class="r"><span class="mono">8.550,00</span></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Pronta</span></td><td><span style="color:var(--text-disabled);font-size:11px;">—</span></td></tr><tr><td><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td><span class="mono" style="color:var(--text-secondary);">05/11</span></td><td><span class="mono" style="font-weight:500;">VALE3</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">59,20</span></td><td class="r"><span class="mono">5.920,00</span></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Pronta</span></td><td><span style="color:var(--text-disabled);font-size:11px;">—</span></td></tr><tr style="background:rgba(251,191,36,0.03);"><td style="background:rgba(251,191,36,0.03);"><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td style="background:rgba(251,191,36,0.03);"><span class="mono" style="color:var(--text-secondary);">08/11</span></td><td style="background:rgba(251,191,36,0.03);"><span class="mono" style="font-weight:500;">ITUB4</span></td><td style="background:rgba(251,191,36,0.03);"><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span class="mono">200</span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span style="display:inline-flex;align-items:center;gap:4px;"><span class="mono" style="border-bottom:1px solid var(--warning);color:var(--warning);padding-bottom:1px;">32,1?</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--warning)" stroke-width="1.5"><path d="M11 1H1v10l3-3h7V1z"/></svg></span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span class="mono" style="color:var(--text-tertiary);">—</span></td><td style="background:rgba(251,191,36,0.03);"><span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Revisar</span></td><td style="background:rgba(251,191,36,0.03);"><span style="color:var(--warning);font-size:11px;font-weight:500;">Corrigir preço</span></td></tr><tr><td><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td><span class="mono" style="color:var(--text-secondary);">09/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:rgba(163,230,53,0.13);color:#A3E635;">Recompra</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">32,15</span></td><td class="r"><span class="mono">6.430,00</span></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Pronta</span></td><td><span style="color:var(--text-disabled);font-size:11px;">—</span></td></tr><tr style="background:rgba(248,113,113,0.03);"><td style="background:rgba(248,113,113,0.03);"><div class="checkbox-off"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--loss)" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l4 4M7 3l-4 4"/></svg></div></td><td style="background:rgba(248,113,113,0.03);"><span class="mono" style="color:var(--text-secondary);">12/11</span></td><td style="background:rgba(248,113,113,0.03);"><span class="mono" style="font-weight:500;">VALE3</span></td><td style="background:rgba(248,113,113,0.03);"><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r" style="background:rgba(248,113,113,0.03);"><span class="mono">100</span></td><td class="r" style="background:rgba(248,113,113,0.03);"><span class="mono">59,20</span></td><td class="r" style="background:rgba(248,113,113,0.03);"><span class="mono">5.920,00</span></td><td style="background:rgba(248,113,113,0.03);"><span class="badge" style="background:var(--loss-soft);color:var(--loss);"><span class="dot" style="background:var(--loss);"></span>Conflito</span></td><td style="background:rgba(248,113,113,0.03);"><span style="display:flex;gap:6px;align-items:center;"><span style="font-size:10px;color:var(--text-primary);font-weight:500;padding:3px 7px;background:var(--bg-surface-3);border:1px solid var(--border-strong);border-radius:5px;white-space:nowrap;cursor:default;">Substituir</span><span style="font-size:10px;color:var(--text-secondary);font-weight:500;padding:3px 7px;border:1px solid var(--border-default);border-radius:5px;white-space:nowrap;cursor:default;">Ignorar</span></span></td></tr><tr style="background:rgba(251,191,36,0.03);"><td style="background:rgba(251,191,36,0.03);"><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td style="background:rgba(251,191,36,0.03);"><span class="mono" style="color:var(--text-secondary);">14/11</span></td><td style="background:rgba(251,191,36,0.03);"><span class="mono" style="border-bottom:1px solid var(--warning);color:var(--warning);padding-bottom:1px;font-weight:500;">BBAS?</span></td><td style="background:rgba(251,191,36,0.03);"><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span class="mono">150</span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span class="mono">28,90</span></td><td class="r" style="background:rgba(251,191,36,0.03);"><span class="mono">4.335,00</span></td><td style="background:rgba(251,191,36,0.03);"><span class="badge" style="background:var(--warning-soft);color:var(--warning);"><span class="dot" style="background:var(--warning);"></span>Revisar</span></td><td style="background:rgba(251,191,36,0.03);"><span style="color:var(--warning);font-size:11px;font-weight:500;">Confirmar ticker</span></td></tr><tr><td><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td><span class="mono" style="color:var(--text-secondary);">18/11</span></td><td><span class="mono" style="font-weight:500;">PETR4</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">31,80</span></td><td class="r"><span class="mono">3.180,00</span></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Pronta</span></td><td><span style="color:var(--text-disabled);font-size:11px;">—</span></td></tr><tr><td><div class="checkbox-on"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div></td><td><span class="mono" style="color:var(--text-secondary);">20/11</span></td><td><span class="mono" style="font-weight:500;">ITSA4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">400</span></td><td class="r"><span class="mono">9,80</span></td><td class="r"><span class="mono">3.920,00</span></td><td><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Pronta</span></td><td><span style="color:var(--text-disabled);font-size:11px;">—</span></td></tr></tbody></table></div>
+          <div class="modal-footer-import"><div style="background:var(--bg-surface-2);border:1px solid var(--border-default);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;flex:1;"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--neutral)" stroke-width="1.5" style="flex-shrink:0;"><circle cx="7" cy="7" r="6"/><path d="M7 4.5v3M7 9.5v.01"/></svg><div><div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:2px;">Impacto projetado · Nov/2025</div><div style="font-size:12px;color:var(--text-secondary);">Volume vendido: <span class="mono" style="color:var(--text-primary);">R$ 12.340</span> → <span class="mono" style="color:var(--gain);font-weight:500;">R$ 15.100</span> &nbsp;·&nbsp; Continua isento <span style="color:var(--gain);">✓</span></div></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;"><div style="height:5px;width:80px;background:var(--bg-surface-3);border-radius:999px;overflow:hidden;"><div style="width:75.5%;height:100%;background:var(--gain);border-radius:999px;"></div></div><span class="mono" style="font-size:10px;color:var(--gain);">75,5%</span></div></div><div style="display:flex;gap:8px;flex-shrink:0;margin-left:16px;"><a href="#screen-07-import-1" class="btn-back">← Voltar</a><a href="#screen-09-import-3" class="btn-next" style="text-decoration:none;">Confirmar importação →</a></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-09-import-3">
+      <div class="screen-meta">
+        <span class="num">09</span>
+        <h3>Import / Step 3 / Confirmation</h3>
+        <p>Batch import result with the linked note number, skipped rows, corrected rows, and updated exemption impact.</p>
+      </div>
+      <div class="screen screen-frame modal-host">
+        <div class="modal" style="width:620px;">
+          <div class="modal-header"><div><div class="label">Importação · Nota de corretagem</div><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;letter-spacing:-0.01em;margin-top:2px;">Importação concluída</div></div><a href="#screen-02-transactions" style="width:30px;height:30px;border-radius:7px;background:var(--bg-surface-2);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;text-decoration:none;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg></a></div>
+          <div class="stepper"><div class="step"><div class="step-num done"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div><span style="font-size:12px;color:var(--text-tertiary);font-weight:500;">Arquivo</span></div><div class="step-line"></div><div class="step"><div class="step-num done"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--gain)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div><span style="font-size:12px;color:var(--text-tertiary);font-weight:500;">Revisão</span></div><div class="step-line"></div><div class="step"><div class="step-num" style="background:var(--gain);color:#0A0B0D;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#0A0B0D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5l2.5 2.5 4-4"/></svg></div><span style="font-size:12px;color:var(--text-primary);font-weight:600;">Concluído</span></div></div>
+          <div class="modal-body" style="align-items:center;text-align:center;">
+            <div style="width:60px;height:60px;border-radius:16px;background:var(--gain-soft);border:1px solid rgba(52,211,153,0.25);display:flex;align-items:center;justify-content:center;margin-bottom:20px;"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--gain)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 14l5.5 5.5 12-12"/></svg></div>
+            <h2 style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.01em;margin-bottom:8px;">6 operações importadas</h2>
+            <p style="font-size:13px;color:var(--text-secondary);max-width:420px;line-height:1.6;">Nota <span class="mono" style="color:var(--text-primary);">12345/2025</span> processada. As operações foram adicionadas a Nov/2025 e os cálculos de PM e isenção foram recalculados.</p>
+            <div class="result-grid"><div class="result-card"><div class="label" style="margin-bottom:6px;">Importadas</div><div class="mono" style="font-size:24px;font-weight:500;color:var(--gain);">6</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px;">de 8 operações</div></div><div class="result-card"><div class="label" style="margin-bottom:6px;">Ignoradas</div><div class="mono" style="font-size:24px;font-weight:500;color:var(--text-secondary);">1</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px;">conflito rejeitado</div></div><div class="result-card"><div class="label" style="margin-bottom:6px;">Revisadas</div><div class="mono" style="font-size:24px;font-weight:500;color:var(--text-secondary);">1</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:3px;">preço corrigido</div></div></div>
+            <div style="width:100%;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:16px 20px;"><div class="label" style="margin-bottom:10px;">Impacto no status fiscal · Nov/2025</div><div style="display:flex;align-items:center;gap:16px;"><div><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:2px;">Volume vendido</div><div class="mono" style="font-size:15px;font-weight:500;color:var(--text-primary);">R$ 15.100,00</div></div><div style="flex:1;height:1px;background:var(--border-subtle);"></div><span class="badge" style="background:var(--gain-soft);color:var(--gain);"><span class="dot" style="background:var(--gain);"></span>Ainda isento</span></div><div style="margin-top:12px;"><div style="height:5px;background:var(--bg-surface-3);border-radius:999px;overflow:hidden;"><div style="width:75.5%;height:100%;background:var(--gain);border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;"><span class="mono" style="color:var(--text-tertiary);">75,5% do limite</span><span style="color:var(--gain);">Margem restante: <span class="mono" style="font-weight:500;">R$ 4.900,00</span></span></div></div></div>
+            <div style="margin-top:18px;font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.01"/></svg>Mesmo isento, as operações devem ser declaradas no IRPF.</div>
+          </div>
+          <div class="modal-footer"><a href="#screen-01-dashboard" class="btn-secondary-link">Ver dashboard</a><a href="#screen-02-transactions" class="btn-primary"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--accent-fg)" stroke-width="1.5"><line x1="2" y1="5" x2="12" y2="5"/><line x1="2" y1="8" x2="12" y2="8"/><line x1="2" y1="11" x2="12" y2="11"/></svg>Ver lançamentos importados</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-10-trace">
+      <div class="screen-meta">
+        <span class="num">10</span>
+        <h3>Traceability / Transactions with Note Number</h3>
+        <p>Optional brokerage-note column enabled, showing imported/manual distinction and the hover tooltip with note metadata.</p>
+      </div>
+      <div class="screen screen-frame">
+        <div class="app">
+          <aside class="sidebar">
+            <div class="logo"><div class="logo-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 9.5L5 6.5 8 8.5 12 3" stroke="#1A2E05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="logo-name">PortLens</span></div>
+            <div class="nav-label">Navegação</div>
+            <a href="#screen-01-dashboard" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Visão geral</a>
+            <a href="#screen-10-trace" class="nav-item active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="5" x2="13" y2="5"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="3" y1="11" x2="13" y2="11"/></svg>Lançamentos</a>
+            <a href="#screen-03-portfolio" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L5 8.5 8 10.5 12 5 14 7"/></svg>Carteira atual</a>
+            <a href="#screen-04-summary" class="nav-item"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="1.5"/><line x1="2" y1="7" x2="14" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/></svg>Competências</a>
+            <div class="isencao-mini"><div class="isencao-mini-inner"><div class="label" style="margin-bottom:5px;">Isenção · Nov</div><div class="mono" style="font-size:16px;font-weight:500;color:var(--text-primary);margin-bottom:9px;">R$ 12.340</div><div class="progress"><div class="progress-fill" style="width:61.7%;background:var(--gain);"></div></div><div style="font-size:10px;color:var(--gain);font-weight:500;margin-top:6px;">61% · Isento · restam R$ 7.660</div></div></div>
+          </aside>
+          <div class="main">
+            <header class="topbar"><div class="topbar-context"><span style="font-size:13px;color:var(--text-tertiary);">Competência</span><div class="month-pill">Nov/2025<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M2 4l3 3 3-3"/></svg></div></div><button class="btn-primary"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--accent-fg)" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Novo lançamento<span class="kbd">N</span></button></header>
+            <main class="content">
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;"><div><div class="label">Módulo 1 · Rastreabilidade ativa</div><h1 class="page-title">Lançamentos</h1></div><div style="display:flex;gap:8px;align-items:center;"><div class="toggle-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--neutral)" stroke-width="1.5"><rect x="1" y="2" width="10" height="8" rx="1"/><path d="M1 5h10"/><path d="M5 5v5"/></svg><span style="font-size:11px;color:var(--neutral);font-weight:500;">Coluna de nota ativa</span><div class="toggle-track"><div class="toggle-thumb"></div></div></div><button class="btn-primary"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5.5 1v9M1 5.5h9"/></svg>Novo lançamento</button></div></div>
+              <div class="card" style="overflow:visible;"><table><thead><tr><th>Data</th><th>Ticker</th><th>Tipo</th><th class="r">Qtd</th><th class="r">Preço</th><th class="r">Volume</th><th class="r">L/P</th><th class="r">Vol. mês</th><th class="r" style="color:var(--neutral);"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--neutral)" stroke-width="1.5"><rect x="1" y="1.5" width="8" height="7" rx="0.8"/><path d="M1 4h8"/></svg>Nota</span></th></tr></thead><tbody><tr><td><span class="mono" style="color:var(--text-secondary);">22/10</span></td><td><span class="mono" style="font-weight:500;">BBAS3</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">150</span></td><td class="r"><span class="mono">28,90</span></td><td class="r"><span class="mono">4.335,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono" style="color:var(--text-tertiary);">—</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);font-size:11px;">—</span><span style="font-size:9px;color:var(--text-disabled);letter-spacing:0.04em;margin-left:4px;">manual</span></td></tr><tr style="background:var(--bg-surface-2);"><td style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-secondary);">03/11</span></td><td style="background:var(--bg-surface-2);"><span class="mono" style="font-weight:500;">PETR4</span></td><td style="background:var(--bg-surface-2);"><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">300</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">28,50</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono">8.550,00</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r" style="background:var(--bg-surface-2);"><span class="mono" style="color:var(--text-tertiary);">—</span></td><td class="r" style="background:var(--bg-surface-2);overflow:visible;position:relative;"><div class="tooltip-wrap"><span class="nota-tag"><svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="var(--neutral)" stroke-width="1.3"><rect x="1" y="1" width="7" height="7" rx="0.7"/><path d="M1 3.5h7"/></svg>12345/2025</span><div class="tooltip"><div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--neutral)" stroke-width="1.5"><rect x="1" y="1.5" width="10" height="9" rx="1"/><path d="M1 5h10"/></svg><span style="font-size:11px;color:var(--text-secondary);font-weight:500;">Nota de corretagem</span></div><div style="display:grid;grid-template-columns:auto auto;gap:4px 16px;"><span style="font-size:10px;color:var(--text-tertiary);">Número</span><span class="mono" style="font-size:11px;color:var(--text-primary);font-weight:500;text-align:right;">12345/2025</span><span style="font-size:10px;color:var(--text-tertiary);">Emissão</span><span class="mono" style="font-size:11px;color:var(--text-primary);text-align:right;">03/11/2025</span><span style="font-size:10px;color:var(--text-tertiary);">Corretora</span><span style="font-size:11px;color:var(--text-primary);text-align:right;">XP Investimentos</span><span style="font-size:10px;color:var(--text-tertiary);">Importada</span><span class="mono" style="font-size:11px;color:var(--text-primary);text-align:right;">03/11 às 14:32</span></div></div></div></td></tr><tr><td><span class="mono" style="color:var(--text-secondary);">05/11</span></td><td><span class="mono" style="font-weight:500;">VALE3</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">100</span></td><td class="r"><span class="mono">59,20</span></td><td class="r"><span class="mono">5.920,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 1.005,20</span></td><td class="r"><span class="mono">5.920</span></td><td class="r"><span class="nota-tag"><svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="var(--neutral)" stroke-width="1.3"><rect x="1" y="1" width="7" height="7" rx="0.7"/><path d="M1 3.5h7"/></svg>12345/2025</span></td></tr><tr><td><span class="mono" style="color:var(--text-secondary);">12/11</span></td><td><span class="mono" style="font-weight:500;">ITUB4</span></td><td><span class="badge" style="background:var(--warning-soft);color:var(--warning);">Venda</span></td><td class="r"><span class="mono">200</span></td><td class="r"><span class="mono">32,10</span></td><td class="r"><span class="mono">6.420,00</span></td><td class="r"><span class="mono" style="color:var(--gain);">+ 842,00</span></td><td class="r"><span class="mono">12.340</span></td><td class="r"><span class="nota-tag"><svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="var(--neutral)" stroke-width="1.3"><rect x="1" y="1" width="7" height="7" rx="0.7"/><path d="M1 3.5h7"/></svg>12390/2025</span></td></tr><tr><td><span class="mono" style="color:var(--text-secondary);">18/11</span></td><td><span class="mono" style="font-weight:500;">ITSA4</span></td><td><span class="badge" style="background:var(--neutral-soft);color:var(--neutral);">Compra</span></td><td class="r"><span class="mono">400</span></td><td class="r"><span class="mono">9,80</span></td><td class="r"><span class="mono">3.920,00</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);">—</span></td><td class="r"><span class="mono">12.340</span></td><td class="r"><span class="mono" style="color:var(--text-disabled);font-size:11px;">—</span><span style="font-size:9px;color:var(--text-disabled);letter-spacing:0.04em;margin-left:4px;">manual</span></td></tr></tbody></table><div style="padding:10px 14px;border-top:1px solid var(--border-subtle);display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);"><span>Passe o cursor sobre o número da nota para ver detalhes. Coluna oculta por padrão — ative via configurações.</span><span class="mono">5 operações · Nov/2025</span></div></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-11-duplicate">
+      <div class="screen-meta">
+        <span class="num">11</span>
+        <h3>Duplicate Note / Flow Interruption</h3>
+        <p>Step-1 interruption state shown when the uploaded brokerage note already exists, preventing duplicate imports.</p>
+      </div>
+      <div class="screen screen-frame modal-host">
+        <div class="modal" style="width:620px;">
+          <div class="modal-header"><div><div class="label">Importação · Nota de corretagem</div><div style="font-family:'Fraunces',Georgia,serif;font-size:22px;letter-spacing:-0.01em;margin-top:2px;">Seleção do arquivo</div></div><div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="font-size:11px;color:var(--text-tertiary);">nota-corretagem-nov2025.pdf</span><a href="#screen-02-transactions" style="width:30px;height:30px;border-radius:7px;background:var(--bg-surface-2);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;text-decoration:none;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg></a></div></div>
+          <div class="stepper"><div class="step"><div class="step-num" style="background:var(--warning-soft);color:var(--warning);border:1px solid rgba(251,191,36,0.3);"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--warning)" stroke-width="1.8" stroke-linecap="round"><path d="M5 2v3M5 7v.01"/></svg></div><span style="font-size:12px;color:var(--text-primary);font-weight:600;">Arquivo</span></div><div class="step-line"></div><div class="step"><div class="step-num pending">2</div><span class="step-label pending">Revisão</span></div><div class="step-line"></div><div class="step"><div class="step-num pending">3</div><span class="step-label pending">Confirmar</span></div></div>
+          <div class="modal-body" style="align-items:center;text-align:center;">
+            <div style="width:56px;height:56px;border-radius:14px;background:var(--warning-soft);border:1px solid rgba(251,191,36,0.25);display:flex;align-items:center;justify-content:center;margin-bottom:20px;"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="var(--warning)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.95 3.5L1.5 20a2 2 0 001.72 3H22.78a2 2 0 001.72-3L15.05 3.5a2.32 2.32 0 00-4.1 0z"/><line x1="13" y1="10" x2="13" y2="15"/><line x1="13" y1="19" x2="13.01" y2="19"/></svg></div>
+            <h2 style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:400;letter-spacing:-0.01em;margin-bottom:8px;">Esta nota já foi importada</h2>
+            <p style="font-size:13px;color:var(--text-secondary);max-width:440px;line-height:1.6;margin-bottom:28px;">O número da nota <span class="mono" style="color:var(--text-primary);font-weight:500;">12345/2025</span> já consta na base. Nenhuma operação será duplicada.</p>
+            <div style="width:100%;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:18px 22px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"><div><div class="label" style="margin-bottom:5px;">Nota</div><div class="mono" style="font-size:15px;font-weight:500;">12345/2025</div></div><div><div class="label" style="margin-bottom:5px;">Importada em</div><div class="mono" style="font-size:15px;font-weight:500;">03/11/2025</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:2px;">às 14:32</div></div><div><div class="label" style="margin-bottom:5px;">Operações</div><div class="mono" style="font-size:15px;font-weight:500;">8 lançamentos</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:2px;">em Nov/2025</div></div></div></div>
+            <div style="font-size:12px;color:var(--text-tertiary);max-width:440px;line-height:1.5;">Para corrigir uma operação desta nota, abra os lançamentos e edite a linha diretamente. Não é possível reimportar uma nota que já está na base.</div>
+          </div>
+          <div class="modal-footer"><a href="#screen-02-transactions" class="btn-cancel">Cancelar</a><a href="#screen-10-trace" class="btn-view"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="3.5" x2="11" y2="3.5"/><line x1="2" y1="6.5" x2="11" y2="6.5"/><line x1="2" y1="9.5" x2="6" y2="9.5"/></svg>Ver lançamentos desta nota</a></div>
+        </div>
+      </div>
+    </section>
+
+    </div><!-- /.doc-content -->
+  </div><!-- /.doc-main -->
+</div><!-- /.doc -->
+
+<script>
+  // Theme toggle
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const label = document.getElementById('themeLabel');
+  function setTheme(t) { root.setAttribute('data-theme', t); label.textContent = t === 'dark' ? 'Light' : 'Dark'; }
+  btn.addEventListener('click', () => setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+  // Sidebar active-section highlight
+  const toc = document.getElementById('toc');
+  const links = Array.from(toc.querySelectorAll('a.toc-item'));
+  const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+  const sections = Array.from(document.querySelectorAll('.doc-content section[id]'));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        const link = byId.get(e.target.id);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  sections.forEach(s => io.observe(s));
+</script>
+
+</body>
+</html>
