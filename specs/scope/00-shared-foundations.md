@@ -44,6 +44,13 @@ Define the shared shell, fiscal data presentation, interactions, and contracts r
 - `android-di-koin` for root-level ViewModel injection
 - `android-testing` for shared UI and ViewModel validation strategy
 
+## Component Standards
+
+- Shared and feature UI should default to stateless composables that receive state and callbacks.
+- Root composables may hold ViewModel wiring, but screen composables should remain pure and previewable.
+- Every meaningful shared UI block should expose at least one realistic `@Preview`.
+- Previews should use representative data so visual review can happen before full screen integration.
+
 ## Implementation Sequence
 
 1. Define the shared shell layout and route framing.
@@ -63,6 +70,8 @@ Define the shared shell, fiscal data presentation, interactions, and contracts r
 - [ ] Task 1.3 Define a shared top bar with the active competence
 - [ ] Task 1.4 Define the global primary action for new transaction entry
 - [ ] Task 1.5 Define the mini exemption card as a persistent access point
+- [ ] Task 1.6 Define shell composables as stateless UI blocks where possible
+- [ ] Task 1.7 Define preview coverage for shared shell components
 
 #### Rules
 
@@ -84,6 +93,7 @@ Define the shared shell, fiscal data presentation, interactions, and contracts r
 - [ ] Task 2.4 Define sign conventions for gains and losses
 - [ ] Task 2.5 Define semantic colors for exempt, taxable, warning, gain, and loss states
 - [ ] Task 2.6 Define dense-table spacing, alignment, and sticky header rules
+- [ ] Task 2.7 Define preview sample data conventions for monetary and fiscal states
 
 #### Rules
 

@@ -12,6 +12,13 @@
 
 Provide a GitHub-issues style execution tracker derived from the scope files, already aligned with the Android/KMP implementation skills.
 
+## Global UI Rule
+
+- [ ] Build UI as stateless composables by default, with state hoisted to ViewModels or parent containers.
+- [ ] Keep `Root` composables responsible for ViewModel wiring and keep `Screen` composables pure.
+- [ ] Add `@Preview` coverage for every meaningful screen and reusable UI block so visual refinement can happen in isolation.
+- [ ] Use realistic sample preview data rather than empty placeholders unless the preview is specifically for an empty state.
+
 ## Phase 1 - Shared Foundations
 
 ### Issue: Define shared application foundations
@@ -28,10 +35,12 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 **Checklist**:
 - [ ] Define target module placement for shared shell, shared domain contracts, and shared presentation helpers
 - [ ] Define sidebar, top bar, and mini exemption card as reusable app-shell elements
+- [ ] Define stateless component boundaries for shared shell elements
 - [ ] Define BRL, date, competence, and tabular-number formatting rules
 - [ ] Define semantic color usage for exempt, taxable, gain, loss, and warning states
 - [ ] Define keyboard shortcuts and visible focus behavior
 - [ ] Define reusable validation and error-message patterns
+- [ ] Add preview coverage for shared shell components and visual states
 - [ ] Validate dark and light theme parity for shared UI primitives
 
 ## Phase 2 - Manual Flow
@@ -49,6 +58,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 **Checklist**:
 - [ ] Implement dashboard screen state, actions, events, and ViewModel
 - [ ] Implement root composable and pure screen composable
+- [ ] Keep dashboard UI blocks stateless and callback-driven
 - [ ] Build header and competence context
 - [ ] Build main exemption card with progress and remaining margin
 - [ ] Build supporting month metrics
@@ -68,10 +78,12 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 
 **Checklist**:
 - [ ] Implement transaction ledger screen state, actions, events, and ViewModel
+- [ ] Keep the ledger screen composable stateless with state hoisted to the ViewModel
 - [ ] Implement filtered summary cards
 - [ ] Implement dense ledger table with derived columns
 - [ ] Implement inline edit behavior and recalculation flow
 - [ ] Implement CSV export action and success feedback
+- [ ] Add previews for key ledger states and row variants
 - [ ] Add ViewModel tests for filtering and recalculation behavior
 - [ ] Add Compose UI tests for key table states
 
@@ -87,10 +99,12 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 
 **Checklist**:
 - [ ] Implement panel root/state/actions/events/ViewModel contract
+- [ ] Keep form and preview sections stateless and previewable
 - [ ] Implement form inputs and validation
 - [ ] Implement live fiscal preview from draft input
 - [ ] Implement save, cancel, and keyboard shortcuts
 - [ ] Persist draft-critical fields if process-death handling is needed
+- [ ] Add previews for valid, invalid, and borderline fiscal states
 - [ ] Add tests for preview and validation behavior
 
 ### Issue: Build Empty state
@@ -108,6 +122,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement primary CTA to manual entry
 - [ ] Implement secondary CTA to import flow
 - [ ] Implement product value highlights
+- [ ] Add previews for first-run and light-theme empty-state variants
 - [ ] Add UI tests for CTA visibility and first-run state
 
 ## Phase 3 - Analytical Views
@@ -124,9 +139,11 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 
 **Checklist**:
 - [ ] Implement portfolio screen state, actions, events, and ViewModel
+- [ ] Keep summary, chart, and holdings blocks stateless and independently previewable
 - [ ] Implement portfolio summary block
 - [ ] Implement simplified evolution block
 - [ ] Implement holdings table and tax-safe sale suggestions
+- [ ] Add previews for gain, loss, and zero-margin portfolio states
 - [ ] Add tests for suggestion logic and edge cases
 
 ### Issue: Build Monthly Summary screen
@@ -143,6 +160,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement monthly summary screen state, actions, events, and ViewModel
 - [ ] Implement year filter and yearly summary cards
 - [ ] Implement competence table and progress semantics
+- [ ] Add previews for exempt, taxable, and no-activity year states
 - [ ] Add tests for taxable and no-activity states
 
 ## Phase 4 - Import and Traceability
@@ -164,6 +182,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement import mode selection and file picking
 - [ ] Implement early PDF note extraction
 - [ ] Implement duplicate-note lookup and routing logic
+- [ ] Add previews for PDF mode, CSV mode, and file-error states
 - [ ] Add tests for invalid file and duplicate-note cases
 
 ### Issue: Build Import Step 2
@@ -182,6 +201,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement status counters and row status transitions
 - [ ] Implement explicit residual conflict handling
 - [ ] Implement projected fiscal impact footer
+- [ ] Add previews for ready, review, and conflict-heavy states
 - [ ] Add tests for conflict gating and row edits
 
 ### Issue: Build Import Step 3
@@ -201,6 +221,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Attach note metadata to imported PDF rows
 - [ ] Trigger fiscal recalculation after persistence
 - [ ] Implement result summary and exit CTAs
+- [ ] Add previews for exempt-result and taxable-result variants
 - [ ] Add tests for partial import and final fiscal impact
 
 ### Issue: Build traceability state in Transactions
@@ -218,6 +239,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement hidden-by-default note column
 - [ ] Implement note metadata tooltip
 - [ ] Preserve traceability in CSV export
+- [ ] Add previews for manual-row and imported-row traceability variants
 - [ ] Add tests for manual vs imported rows
 
 ### Issue: Build Duplicate Note interruption state
@@ -236,6 +258,7 @@ Provide a GitHub-issues style execution tracker derived from the scope files, al
 - [ ] Implement duplicate note details payload
 - [ ] Implement CTA to view related transactions
 - [ ] Implement safe cancel path
+- [ ] Add previews for the interruption state with realistic imported-note metadata
 - [ ] Add tests that guarantee no duplicate persistence occurs
 
 ## Phase 5 - Final Validation

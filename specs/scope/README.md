@@ -89,6 +89,8 @@ Organize the v1 scope by screen and by internal screen parts before implementati
 
 - Every screen should be implemented with the `android-presentation-mvi` pattern.
 - Every screen composable should follow `Root` plus `Screen` separation and use `collectAsStateWithLifecycle()`.
+- Feature UI should be built as stateless composables whenever possible, receiving state and callbacks instead of owning business state.
+- Every meaningful screen or reusable UI block should provide an `@Preview` so it can be reviewed in isolation before integration.
 - Navigation should be type-safe and assembled in `:app` using the `android-navigation` pattern.
 - Shared code should move to `:core:*`; feature-specific code should stay inside `:feature:<name>:*` modules.
 - Data access for import, transactions, and summaries should use interfaces in domain and implementations in data.
