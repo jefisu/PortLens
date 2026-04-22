@@ -38,11 +38,14 @@ import com.jefisu.portlens.designsystem.components.shell.model.ShellNavItemUi
 @Composable
 fun PortLensAppShell(
     competenceLabel: String,
+    competenceOptions: List<CompetenceOptionUi>,
+    isCompetenceMenuExpanded: Boolean,
     navItems: List<ShellNavItemUi>,
     miniExemptionCard: MiniExemptionCardUi,
     isTransactionPanelOpen: Boolean,
     onNavClick: (ShellDestination) -> Unit,
     onCompetenceClick: () -> Unit,
+    onCompetenceMenuDismiss: () -> Unit,
     onNewTransactionClick: () -> Unit,
     onClosePanel: () -> Unit,
     onOpenPanel: () -> Unit,
@@ -89,9 +92,12 @@ fun PortLensAppShell(
             Column(modifier = Modifier.fillMaxSize()) {
                 WebShellHeader(
                     competenceLabel = competenceLabel,
+                    competenceOptions = competenceOptions,
+                    isCompetenceMenuExpanded = isCompetenceMenuExpanded,
                     navItems = navItems,
                     onNavClick = onNavClick,
                     onCompetenceClick = onCompetenceClick,
+                    onCompetenceMenuDismiss = onCompetenceMenuDismiss,
                     onNewTransactionClick = onNewTransactionClick,
                 )
 
@@ -134,7 +140,10 @@ fun PortLensAppShell(
                     ) {
                         TopBar(
                             competenceLabel = competenceLabel,
+                            competenceOptions = competenceOptions,
+                            isCompetenceMenuExpanded = isCompetenceMenuExpanded,
                             onCompetenceClick = onCompetenceClick,
+                            onCompetenceMenuDismiss = onCompetenceMenuDismiss,
                             onNewTransactionClick = onNewTransactionClick,
                         )
 
@@ -226,6 +235,11 @@ private fun PortLensAppShellPreview() {
     PortLensTheme {
         PortLensAppShell(
             competenceLabel = "Nov/2025",
+            competenceOptions = listOf(
+                CompetenceOptionUi(label = "Out/2025", isSelected = false, onClick = {}),
+                CompetenceOptionUi(label = "Nov/2025", isSelected = true, onClick = {}),
+            ),
+            isCompetenceMenuExpanded = true,
             navItems = listOf(
                 ShellNavItemUi(ShellDestination.Overview, true),
                 ShellNavItemUi(ShellDestination.Transactions, false),
@@ -241,6 +255,7 @@ private fun PortLensAppShellPreview() {
             isTransactionPanelOpen = true,
             onNavClick = {},
             onCompetenceClick = {},
+            onCompetenceMenuDismiss = {},
             onNewTransactionClick = {},
             onClosePanel = {},
             onOpenPanel = {},

@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,10 +43,26 @@ import com.jefisu.portlens.designsystem.generated.resources.shortcut_n
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+data class CompetenceOptionUi(
+    val label: String,
+    val isSelected: Boolean,
+    val indicatorTone: CompetenceIndicatorToneUi? = null,
+    val onClick: () -> Unit,
+)
+
+enum class CompetenceIndicatorToneUi {
+    Positive,
+    Negative,
+    Warning,
+}
+
 @Composable
 fun TopBar(
     competenceLabel: String,
+    competenceOptions: List<CompetenceOptionUi>,
+    isCompetenceMenuExpanded: Boolean,
     onCompetenceClick: () -> Unit,
+    onCompetenceMenuDismiss: () -> Unit,
     onNewTransactionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -58,7 +77,10 @@ fun TopBar(
     ) {
         CompetenceChip(
             competenceLabel = competenceLabel,
+            competenceOptions = competenceOptions,
+            isExpanded = isCompetenceMenuExpanded,
             onClick = onCompetenceClick,
+            onDismissRequest = onCompetenceMenuDismiss,
         )
 
         NewTransactionButton(onClick = onNewTransactionClick)
@@ -68,9 +90,12 @@ fun TopBar(
 @Composable
 internal fun WebShellHeader(
     competenceLabel: String,
+    competenceOptions: List<CompetenceOptionUi>,
+    isCompetenceMenuExpanded: Boolean,
     navItems: List<ShellNavItemUi>,
     onNavClick: (ShellDestination) -> Unit,
     onCompetenceClick: () -> Unit,
+    onCompetenceMenuDismiss: () -> Unit,
     onNewTransactionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,7 +125,10 @@ internal fun WebShellHeader(
                     BrandBlock()
                     HeaderActions(
                         competenceLabel = competenceLabel,
+                        competenceOptions = competenceOptions,
+                        isCompetenceMenuExpanded = isCompetenceMenuExpanded,
                         onCompetenceClick = onCompetenceClick,
+                        onCompetenceMenuDismiss = onCompetenceMenuDismiss,
                         onNewTransactionClick = onNewTransactionClick,
                     )
                 }
@@ -170,7 +198,10 @@ internal fun BrandBlock() {
 @Composable
 private fun HeaderActions(
     competenceLabel: String,
+    competenceOptions: List<CompetenceOptionUi>,
+    isCompetenceMenuExpanded: Boolean,
     onCompetenceClick: () -> Unit,
+    onCompetenceMenuDismiss: () -> Unit,
     onNewTransactionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -181,14 +212,23 @@ private fun HeaderActions(
     ) {
         CompetenceChip(
             competenceLabel = competenceLabel,
+            competenceOptions = competenceOptions,
+            isExpanded = isCompetenceMenuExpanded,
             onClick = onCompetenceClick,
+            onDismissRequest = onCompetenceMenuDismiss,
         )
         NewTransactionButton(onClick = onNewTransactionClick)
     }
 }
 
 @Composable
-private fun CompetenceChip(competenceLabel: String, onClick: () -> Unit) {
+private fun CompetenceChip(
+    competenceLabel: String,
+    competenceOptions: List<CompetenceOptionUi>,
+    isExpanded: Boolean,
+    onClick: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -198,29 +238,74 @@ private fun CompetenceChip(competenceLabel: String, onClick: () -> Unit) {
             style = PortLensTheme.typography.bodySm,
             color = PortLensTheme.colors.textTertiary,
         )
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(7.dp))
-                .background(PortLensTheme.colors.bgSurface2)
-                .border(1.dp, PortLensTheme.colors.borderDefault, RoundedCornerShape(7.dp))
-                .clickable(onClick = onClick)
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = competenceLabel,
-                style = PortLensTheme.typography.numMd,
-                color = PortLensTheme.colors.textPrimary,
-            )
-            Image(
-                painter = painterResource(Res.drawable.ic_chevron_down),
-                contentDescription = null,
-                modifier = Modifier.size(10.dp),
-                colorFilter = ColorFilter.tint(PortLensTheme.colors.textTertiary),
-            )
+        Box {
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(7.dp))
+                    .background(PortLensTheme.colors.bgSurface2)
+                    .border(1.dp, PortLensTheme.colors.borderDefault, RoundedCornerShape(7.dp))
+                    .clickable(onClick = onClick)
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = competenceLabel,
+                    style = PortLensTheme.typography.numMd,
+                    color = PortLensTheme.colors.textPrimary,
+                )
+                Image(
+                    painter = painterResource(Res.drawable.ic_chevron_down),
+                    contentDescription = null,
+                    modifier = Modifier.size(10.dp),
+                    colorFilter = ColorFilter.tint(PortLensTheme.colors.textTertiary),
+                )
+            }
+
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = onDismissRequest,
+                containerColor = PortLensTheme.colors.bgSurface,
+            ) {
+                competenceOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                if (option.indicatorTone != null) {
+                                    Surface(
+                                        modifier = Modifier.size(8.dp),
+                                        shape = RoundedCornerShape(percent = 50),
+                                        color = option.indicatorTone.color(),
+                                    ) {}
+                                }
+
+                                Text(
+                                    text = option.label,
+                                    color = PortLensTheme.colors.textPrimary,
+                                    fontWeight = if (option.isSelected) {
+                                        FontWeight.SemiBold
+                                    } else {
+                                        FontWeight.Normal
+                                    },
+                                )
+                            }
+                        },
+                        onClick = option.onClick,
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun CompetenceIndicatorToneUi.color(): Color = when (this) {
+    CompetenceIndicatorToneUi.Positive -> PortLensTheme.colors.gain
+    CompetenceIndicatorToneUi.Negative -> PortLensTheme.colors.loss
+    CompetenceIndicatorToneUi.Warning -> PortLensTheme.colors.warning
 }
 
 @Composable
@@ -298,7 +383,13 @@ private fun TopBarPreview() {
     PortLensTheme {
         TopBar(
             competenceLabel = "Nov/2025",
+            competenceOptions = listOf(
+                CompetenceOptionUi(label = "Out/2025", isSelected = false, onClick = {}),
+                CompetenceOptionUi(label = "Nov/2025", isSelected = true, onClick = {}),
+            ),
+            isCompetenceMenuExpanded = true,
             onCompetenceClick = {},
+            onCompetenceMenuDismiss = {},
             onNewTransactionClick = {},
         )
     }

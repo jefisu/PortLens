@@ -19,7 +19,10 @@ import com.jefisu.portlens.core.presentation.generated.resources.month_short_nov
 import com.jefisu.portlens.core.presentation.generated.resources.month_short_october
 import com.jefisu.portlens.core.presentation.generated.resources.month_short_september
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -82,4 +85,18 @@ fun Timestamp.formatUpdatedAt(): String {
     val formattedHour = hour.toString().padStart(2, '0')
     val formattedMinute = minute.toString().padStart(2, '0')
     return "$formattedDay/$formattedMonth · $formattedHour:$formattedMinute"
+}
+
+fun Float.toPercentLabel(): String {
+    val scaled = (this * 1000).roundToInt() / 10f
+    val text = scaled.toString().replace('.', ',')
+    return if (text.contains(',')) "$text%" else "$text,0%"
+}
+
+fun CompetenceMonth.isCurrentLocalCompetence(): Boolean {
+    val currentLocalDate = kotlin.time.Clock.System.now()
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
+
+    return year == currentLocalDate.year && month == currentLocalDate.month
 }

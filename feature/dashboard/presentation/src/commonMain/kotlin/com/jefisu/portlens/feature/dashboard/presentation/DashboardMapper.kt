@@ -7,28 +7,29 @@ import com.jefisu.portlens.core.presentation.formatBrl
 import com.jefisu.portlens.core.presentation.formatShortDate
 import com.jefisu.portlens.core.presentation.formatSignedBrl
 import com.jefisu.portlens.core.presentation.formatUpdatedAt
+import com.jefisu.portlens.core.presentation.isCurrentLocalCompetence
 import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
-import kotlin.math.roundToInt
 
 fun DashboardSnapshot.toDashboardState(): DashboardState = DashboardState(
     isLoading = false,
+    error = null,
     updatedAtLabel = lastUpdatedAt.formatUpdatedAt(),
     competenceMonth = competence.month,
     exemptionCard = DashboardExemptionCardUi(
-        status = exemptionStatus.toSemanticTone(),
-        soldAmountLabel = totalSoldInMonth.formatBrl(),
+        status = exemptionStatus.toSemanticTone(competence.isCurrentLocalCompetence()),
+        soldAmountCents = totalSoldInMonth.cents,
         limitAmountLabel = monthlyExemptionLimit.formatBrl(),
         usedRatio = usedLimitRatio,
-        usedRatioLabel = usedLimitRatio.toPercentLabel(),
-        remainingAmountLabel = remainingExemptionMargin.formatBrl(),
+        remainingAmountCents = remainingExemptionMargin.cents,
     ),
     realizedGainCard = DashboardSummaryMetricUi(
-        valueLabel = realizedGainInMonth.formatSignedBrl(),
-        supportingLabel = "2",
+        valueAmountCents = realizedGainInMonth.cents,
+        supportingLabel = latestTransactions.count { it.type == TransactionType.Sell }.toString(),
         tone = realizedGainInMonth.toResultTone(),
+        useSignedFormat = true,
     ),
     estimatedTaxCard = DashboardSummaryMetricUi(
-        valueLabel = estimatedTaxInMonth.formatBrl(),
+        valueAmountCents = estimatedTaxInMonth.cents,
         supportingLabel = "",
         tone = if (estimatedTaxInMonth.cents >
             0
@@ -56,20 +57,21 @@ fun DashboardSnapshot.toDashboardState(): DashboardState = DashboardState(
     },
 )
 
-private fun ExemptionStatus.toSemanticTone(): SemanticTone = when (this) {
-    ExemptionStatus.Exempt -> SemanticTone.Positive
-    ExemptionStatus.NearLimit -> SemanticTone.Warning
-    ExemptionStatus.Taxable -> SemanticTone.Negative
-}
+private fun ExemptionStatus.toSemanticTone(isCurrentCompetence: Boolean): SemanticTone =
+    when (this) {
+        ExemptionStatus.Exempt -> SemanticTone.Positive
+
+        ExemptionStatus.NearLimit -> if (isCurrentCompetence) {
+            SemanticTone.Warning
+        } else {
+            SemanticTone.Positive
+        }
+
+        ExemptionStatus.Taxable -> SemanticTone.Negative
+    }
 
 private fun com.jefisu.portlens.core.domain.Money.toResultTone(): DashboardMetricTone = when {
     cents > 0 -> DashboardMetricTone.Positive
     cents < 0 -> DashboardMetricTone.Negative
     else -> DashboardMetricTone.Neutral
-}
-
-private fun Float.toPercentLabel(): String {
-    val scaled = (this * 1000).roundToInt() / 10f
-    val text = scaled.toString().replace('.', ',')
-    return if (text.contains(',')) "$text%" else "$text,0%"
 }

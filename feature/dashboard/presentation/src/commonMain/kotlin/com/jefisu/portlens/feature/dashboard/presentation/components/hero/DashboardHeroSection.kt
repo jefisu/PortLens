@@ -1,5 +1,8 @@
 package com.jefisu.portlens.feature.dashboard.presentation.components.hero
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -12,10 +15,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.jefisu.portlens.core.domain.Money
+import com.jefisu.portlens.core.presentation.formatBrl
+import com.jefisu.portlens.core.presentation.formatSignedBrl
 import com.jefisu.portlens.core.presentation.shortMonthLabel
+import com.jefisu.portlens.core.presentation.toPercentLabel
 import com.jefisu.portlens.designsystem.PortLensDimens
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.badge.PortLensBadge
@@ -36,6 +48,7 @@ import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.da
 import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.dashboard_exemption_title
 import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.dashboard_realized_gain
 import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.dashboard_realized_gain_supporting
+import kotlin.math.roundToLong
 import kotlinx.datetime.Month
 import org.jetbrains.compose.resources.stringResource
 
@@ -93,6 +106,14 @@ fun DashboardHeroSection(
 
 @Composable
 private fun ExemptionHeroCard(card: DashboardExemptionCardUi, modifier: Modifier = Modifier) {
+    val animatedSoldAmountCents = animateLongValue(card.soldAmountCents)
+    val animatedUsedRatio = animateFloatAsState(
+        targetValue = card.usedRatio,
+        animationSpec = tween(durationMillis = 420),
+        label = "dashboard_used_ratio",
+    )
+    val animatedRemainingAmountCents = animateLongValue(card.remainingAmountCents)
+
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(PortLensDimens.cardCornerRadius),
@@ -124,7 +145,7 @@ private fun ExemptionHeroCard(card: DashboardExemptionCardUi, modifier: Modifier
             }
 
             Text(
-                text = card.soldAmountLabel,
+                text = Money(cents = animatedSoldAmountCents).formatBrl(),
                 style = PortLensTheme.typography.numHero,
                 color = PortLensTheme.colors.textPrimary,
             )
@@ -137,7 +158,7 @@ private fun ExemptionHeroCard(card: DashboardExemptionCardUi, modifier: Modifier
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PortLensProgressBar(
-                    progress = card.usedRatio,
+                    progress = animatedUsedRatio.value,
                     indicatorColor = card.status.color(),
                 )
 
@@ -146,14 +167,14 @@ private fun ExemptionHeroCard(card: DashboardExemptionCardUi, modifier: Modifier
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Text(
-                        text = card.usedRatioLabel,
+                        text = animatedUsedRatio.value.toPercentLabel(),
                         style = PortLensTheme.typography.numMd,
                         color = PortLensTheme.colors.textTertiary,
                     )
                     Text(
                         text = stringResource(
                             Res.string.dashboard_exemption_remaining,
-                            card.remainingAmountLabel,
+                            Money(cents = animatedRemainingAmountCents).formatBrl(),
                         ),
                         style = PortLensTheme.typography.bodySm,
                         color = card.status.color(),
@@ -182,6 +203,8 @@ private fun SummaryMetricCard(
     supportingLabel: String,
     modifier: Modifier = Modifier,
 ) {
+    val animatedValueAmountCents = animateLongValue(metric.valueAmountCents)
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(PortLensDimens.cardCornerRadius),
@@ -199,7 +222,11 @@ private fun SummaryMetricCard(
                 color = PortLensTheme.colors.textTertiary,
             )
             Text(
-                text = metric.valueLabel,
+                text = if (metric.useSignedFormat) {
+                    Money(cents = animatedValueAmountCents).formatSignedBrl()
+                } else {
+                    Money(cents = animatedValueAmountCents).formatBrl()
+                },
                 style = PortLensTheme.typography.numLg,
                 color = metric.tone.valueColor(),
             )
@@ -210,4 +237,25 @@ private fun SummaryMetricCard(
             )
         }
     }
+}
+
+@Composable
+private fun animateLongValue(targetValue: Long): Long {
+    val progress = remember { Animatable(1f) }
+    var startValue by remember { mutableStateOf(targetValue) }
+    var currentTarget by remember { mutableStateOf(targetValue) }
+
+    LaunchedEffect(targetValue) {
+        startValue = interpolateLong(startValue, currentTarget, progress.value)
+        currentTarget = targetValue
+        progress.snapTo(0f)
+        progress.animateTo(1f, animationSpec = tween(durationMillis = 420))
+    }
+
+    return interpolateLong(startValue, currentTarget, progress.value)
+}
+
+private fun interpolateLong(startValue: Long, endValue: Long, progress: Float): Long {
+    val delta = endValue - startValue
+    return (startValue + (delta * progress.toDouble())).roundToLong()
 }

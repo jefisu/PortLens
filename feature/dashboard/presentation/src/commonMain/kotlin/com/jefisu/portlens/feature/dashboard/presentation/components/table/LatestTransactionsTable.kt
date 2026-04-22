@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -65,6 +67,7 @@ import org.jetbrains.compose.resources.stringResource
 fun LatestTransactionsTable(
     transactions: List<LatestTransactionUi>,
     month: Month,
+    isLoading: Boolean,
     modifier: Modifier = Modifier,
     onViewAllClick: () -> Unit = {},
 ) {
@@ -107,13 +110,26 @@ fun LatestTransactionsTable(
                             color = PortLensTheme.colors.textTertiary,
                         )
                     }
-                    Text(
-                        text = stringResource(Res.string.dashboard_view_all),
-                        modifier = Modifier.clickable(onClick = onViewAllClick),
-                        style = PortLensTheme.typography.bodySm,
-                        color = PortLensTheme.colors.neutral,
-                        textDecoration = TextDecoration.Underline,
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.width(14.dp),
+                                strokeWidth = 2.dp,
+                                color = PortLensTheme.colors.accent,
+                            )
+                        }
+
+                        Text(
+                            text = stringResource(Res.string.dashboard_view_all),
+                            modifier = Modifier.clickable(onClick = onViewAllClick),
+                            style = PortLensTheme.typography.bodySm,
+                            color = PortLensTheme.colors.neutral,
+                            textDecoration = TextDecoration.Underline,
+                        )
+                    }
                 }
 
                 HorizontalDivider(color = PortLensTheme.colors.borderDefault)
@@ -177,6 +193,16 @@ private fun LatestTransactionsTableContent(
                 DashboardTableHorizontalPadding * 2 +
                 dynamicColumnSpacing * DashboardTableColumnKeys.lastIndex
         }
+        val minimumRowHeight = if (useDenseDesktopLayout) {
+            DashboardDenseTransactionRowMinHeight
+        } else {
+            DashboardTransactionRowMinHeight
+        }
+        val minimumTableBodyHeight = minimumRowHeight * transactions.size +
+            DashboardTableDividerThickness * (transactions.size - 1).coerceAtLeast(0)
+        val shouldDistributeExtraHeight = distributeExtraHeight &&
+            transactions.size >= DASHBOARD_MINIMUM_ROWS_FOR_EVEN_DISTRIBUTION &&
+            maxHeight >= minimumTableBodyHeight
 
         if (useCompactRows) {
             Column {
@@ -206,7 +232,7 @@ private fun LatestTransactionsTableContent(
 
                     HorizontalDivider(color = PortLensTheme.colors.borderDefault)
 
-                    if (distributeExtraHeight) {
+                    if (shouldDistributeExtraHeight) {
                         Column(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.SpaceEvenly,
@@ -238,7 +264,9 @@ private fun LatestTransactionsTableContent(
                                 columnWidths = columnWidths,
                                 columnSpacing = dynamicColumnSpacing,
                                 dense = useDenseDesktopLayout,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = minimumRowHeight),
                             )
                             if (index != transactions.lastIndex) {
                                 HorizontalDivider(color = PortLensTheme.colors.borderSubtle)
@@ -467,7 +495,7 @@ private fun DashboardTransactionRow(
                 PortLensTheme.colors.textPrimary
             },
             textAlign = TextAlign.End,
-            fontWeight = if (transaction.ticker == "VALE3") {
+            fontWeight = if (transaction.accumulatedMonthlyVolumeLabel != null) {
                 FontWeight.SemiBold
             } else {
                 FontWeight.Medium
@@ -550,6 +578,10 @@ private val DashboardTableHorizontalPadding = 14.dp
 private val DashboardTableMinColumnSpacing = 6.dp
 private val DashboardTypeBadgeHorizontalPadding = 16.dp
 private val DashboardTableColumnSafetyPadding = 8.dp
+private val DashboardTableDividerThickness = 1.dp
+private val DashboardTransactionRowMinHeight = 56.dp
+private val DashboardDenseTransactionRowMinHeight = 48.dp
+private const val DASHBOARD_MINIMUM_ROWS_FOR_EVEN_DISTRIBUTION = 3
 private const val DASHBOARD_LATEST_TRANSACTIONS_PREVIEW_COUNT = 3
 
 private data class DashboardTableTextStyles(
@@ -661,7 +693,11 @@ private fun measureColumnContentWidth(
     DashboardTableColumnKey.MonthVolume -> measureTextWidth(
         text = transaction.accumulatedMonthlyVolumeLabel ?: "—",
         style = textStyles.body,
-        fontWeight = if (transaction.ticker == "VALE3") FontWeight.SemiBold else FontWeight.Medium,
+        fontWeight = if (transaction.accumulatedMonthlyVolumeLabel != null) {
+            FontWeight.SemiBold
+        } else {
+            FontWeight.Medium
+        },
         textMeasurer = textMeasurer,
         density = density,
     )

@@ -7,6 +7,7 @@ import kotlinx.datetime.Month
 @Immutable
 data class DashboardState(
     val isLoading: Boolean = true,
+    val error: String? = null,
     val updatedAtLabel: String = "",
     val competenceMonth: Month = Month.JANUARY,
     val exemptionCard: DashboardExemptionCardUi? = null,
@@ -17,17 +18,17 @@ data class DashboardState(
 
 data class DashboardExemptionCardUi(
     val status: SemanticTone,
-    val soldAmountLabel: String,
+    val soldAmountCents: Long,
     val limitAmountLabel: String,
     val usedRatio: Float,
-    val usedRatioLabel: String,
-    val remainingAmountLabel: String,
+    val remainingAmountCents: Long,
 )
 
 data class DashboardSummaryMetricUi(
-    val valueLabel: String,
+    val valueAmountCents: Long,
     val supportingLabel: String,
     val tone: DashboardMetricTone,
+    val useSignedFormat: Boolean = false,
 )
 
 data class LatestTransactionUi(

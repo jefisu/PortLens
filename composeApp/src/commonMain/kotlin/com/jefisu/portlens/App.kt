@@ -9,11 +9,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,17 +22,21 @@ import androidx.navigation.compose.rememberNavController
 import com.jefisu.portlens.components.panel.NewTransactionPlaceholderPanel
 import com.jefisu.portlens.components.placeholder.PlaceholderScreen
 import com.jefisu.portlens.core.domain.ExemptionStatus
+import com.jefisu.portlens.core.domain.GetAvailableCompetences
+import com.jefisu.portlens.core.domain.GetDashboardSnapshot
 import com.jefisu.portlens.core.presentation.formatBrl
 import com.jefisu.portlens.core.presentation.formatCompetence
+import com.jefisu.portlens.core.presentation.isCurrentLocalCompetence
 import com.jefisu.portlens.core.presentation.shortMonthLabel
+import com.jefisu.portlens.core.presentation.toPercentLabel
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.card.model.MiniExemptionCardUi
 import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
+import com.jefisu.portlens.designsystem.components.shell.CompetenceOptionUi
 import com.jefisu.portlens.designsystem.components.shell.PortLensAppShell
 import com.jefisu.portlens.designsystem.components.shell.model.ShellDestination
 import com.jefisu.portlens.designsystem.components.shell.model.ShellNavItemUi
 import com.jefisu.portlens.feature.dashboard.presentation.DashboardRoot
-import com.jefisu.portlens.feature.dashboard.presentation.util.dashboardSnapshotPreview
 import com.jefisu.portlens.generated.resources.Res
 import com.jefisu.portlens.generated.resources.placeholder_portfolio_body
 import com.jefisu.portlens.generated.resources.placeholder_portfolio_title
@@ -44,18 +48,32 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun App() {
+    val getAvailableCompetences = remember { fakeGetAvailableCompetences() }
+    val getDashboardSnapshot = remember { fakeGetDashboardSnapshot() }
+
     PortLensTheme {
-        PortLensApp()
+        PortLensApp(
+            getAvailableCompetences = getAvailableCompetences,
+            getDashboardSnapshot = getDashboardSnapshot,
+        )
     }
 }
 
 @Composable
-private fun PortLensApp() {
-    val snapshot = dashboardSnapshotPreview
-    var isTransactionPanelOpen by remember { mutableStateOf(false) }
+private fun PortLensApp(
+    getAvailableCompetences: GetAvailableCompetences,
+    getDashboardSnapshot: GetDashboardSnapshot,
+    appShellViewModel: AppShellViewModel = viewModel {
+        AppShellViewModel(getAvailableCompetences)
+    },
+) {
+    val shellState by appShellViewModel.state.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
+    val snapshot = remember(shellState.selectedCompetence) {
+        fakeDashboardSnapshotFor(shellState.selectedCompetence)
+    }
 
     val navItems = listOf(
         ShellNavItemUi(
@@ -75,19 +93,33 @@ private fun PortLensApp() {
             isSelected = currentDestination?.hasRoute<AppRoute.MonthlySummary>() == true,
         ),
     )
+    val competenceOptions = shellState.availableCompetences.map { competence ->
+        CompetenceOptionUi(
+            label = competence.formatCompetence(),
+            isSelected = competence == shellState.selectedCompetence,
+            indicatorTone = fakeCompetenceIndicatorToneFor(competence),
+            onClick = {
+                appShellViewModel.onAction(AppShellAction.OnCompetenceSelected(competence))
+            },
+        )
+    }
 
     PortLensAppShell(
-        competenceLabel = snapshot.competence.formatCompetence(),
+        competenceLabel = shellState.selectedCompetence.formatCompetence(),
+        competenceOptions = competenceOptions,
+        isCompetenceMenuExpanded = shellState.isCompetenceMenuExpanded,
         navItems = navItems,
         miniExemptionCard = MiniExemptionCardUi(
             monthLabel = snapshot.competence.month.shortMonthLabel(),
             soldAmountLabel = snapshot.totalSoldInMonth.formatBrl(),
             usedRatio = snapshot.usedLimitRatio,
-            usedRatioLabel = "61,7%",
+            usedRatioLabel = snapshot.usedLimitRatio.toPercentLabel(),
             remainingLabel = snapshot.remainingExemptionMargin.formatBrl(),
-            tone = snapshot.exemptionStatus.toSemanticTone(),
+            tone = snapshot.exemptionStatus.toSemanticTone(
+                snapshot.competence.isCurrentLocalCompetence(),
+            ),
         ),
-        isTransactionPanelOpen = isTransactionPanelOpen,
+        isTransactionPanelOpen = shellState.isNewTransactionPanelOpen,
         onNavClick = { destination ->
             val route = when (destination) {
                 ShellDestination.Overview -> AppRoute.Dashboard
@@ -101,10 +133,15 @@ private fun PortLensApp() {
                 popUpTo<AppRoute.Dashboard>()
             }
         },
-        onCompetenceClick = { /* TODO: open competence picker */ },
-        onNewTransactionClick = { isTransactionPanelOpen = true },
-        onClosePanel = { isTransactionPanelOpen = false },
-        onOpenPanel = { isTransactionPanelOpen = true },
+        onCompetenceClick = { appShellViewModel.onAction(AppShellAction.OnCompetenceClick) },
+        onCompetenceMenuDismiss = {
+            appShellViewModel.onAction(AppShellAction.OnCompetenceMenuDismiss)
+        },
+        onNewTransactionClick = {
+            appShellViewModel.onAction(AppShellAction.OnNewTransactionClick)
+        },
+        onClosePanel = { appShellViewModel.onAction(AppShellAction.OnCloseTransactionPanel) },
+        onOpenPanel = { appShellViewModel.onAction(AppShellAction.OnNewTransactionClick) },
         panelContent = { NewTransactionPlaceholderPanel() },
         content = {
             NavHost(
@@ -140,6 +177,8 @@ private fun PortLensApp() {
             ) {
                 composable<AppRoute.Dashboard> {
                     DashboardRoot(
+                        selectedCompetence = shellState.selectedCompetence,
+                        getDashboardSnapshot = getDashboardSnapshot,
                         onViewAllTransactions = {
                             navController.navigate(AppRoute.Transactions) {
                                 launchSingleTop = true
@@ -178,12 +217,22 @@ private fun PortLensApp() {
 @Composable
 private fun AppPreview() {
     PortLensTheme {
-        PortLensApp()
+        PortLensApp(
+            getAvailableCompetences = fakeGetAvailableCompetences(),
+            getDashboardSnapshot = fakeGetDashboardSnapshot(),
+        )
     }
 }
 
-private fun ExemptionStatus.toSemanticTone(): SemanticTone = when (this) {
-    ExemptionStatus.Exempt -> SemanticTone.Positive
-    ExemptionStatus.NearLimit -> SemanticTone.Warning
-    ExemptionStatus.Taxable -> SemanticTone.Negative
-}
+private fun ExemptionStatus.toSemanticTone(isCurrentCompetence: Boolean): SemanticTone =
+    when (this) {
+        ExemptionStatus.Exempt -> SemanticTone.Positive
+
+        ExemptionStatus.NearLimit -> if (isCurrentCompetence) {
+            SemanticTone.Warning
+        } else {
+            SemanticTone.Positive
+        }
+
+        ExemptionStatus.Taxable -> SemanticTone.Negative
+    }
