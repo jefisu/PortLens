@@ -18,6 +18,7 @@ class ComposeMultiplatformLibraryConventionPlugin : Plugin<Project> {
 
         extensions.configure<KotlinMultiplatformExtension> {
             jvmToolchain(17)
+
             jvm()
             js { browser() }
             @OptIn(ExperimentalWasmDsl::class)
@@ -32,6 +33,11 @@ class ComposeMultiplatformLibraryConventionPlugin : Plugin<Project> {
                     implementation(libs.findLibrary("compose-components-resources").get())
                     implementation(libs.findLibrary("compose-uiToolingPreview").get())
                 }
+            }
+
+            compilerOptions {
+                freeCompilerArgs.add("-Xexplicit-backing-fields")
+                freeCompilerArgs.add("-Xcontext-parameters")
             }
         }
     }

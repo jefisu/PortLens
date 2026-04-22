@@ -45,6 +45,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 moduleGraph = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraph" }
 
 # PortLens convention plugins (resolved via build-logic composite build — no version needed)
+portlens-compose-feature = { id = "portlens.compose-feature" }
 portlens-compose-multiplatform-library = { id = "portlens.compose-multiplatform-library" }
 portlens-dependency-guard = { id = "portlens.dependency-guard" }
 portlens-git-hooks = { id = "portlens.git-hooks" }

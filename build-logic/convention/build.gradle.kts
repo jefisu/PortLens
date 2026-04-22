@@ -30,6 +30,10 @@ gradlePlugin {
             id = "portlens.compose-multiplatform-library"
             implementationClass = "ComposeMultiplatformLibraryConventionPlugin"
         }
+        register("composeFeature") {
+            id = "portlens.compose-feature"
+            implementationClass = "ComposeFeatureConventionPlugin"
+        }
         register("dependencyGuard") {
             id = "portlens.dependency-guard"
             implementationClass = "DependencyGuardConventionPlugin"
