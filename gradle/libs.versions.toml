@@ -11,6 +11,9 @@ material3 = "1.10.0-alpha05"
 moduleGraph = "2.8.0"
 navigationCompose = "2.9.2"
 
+appPackageName = "com.jefisu.portlens"
+appPackageVersion = "1.0.0"
+
 [libraries]
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
@@ -45,7 +48,9 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 moduleGraph = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraph" }
 
 # PortLens convention plugins (resolved via build-logic composite build — no version needed)
-portlens-compose-feature = { id = "portlens.compose-feature" }
-portlens-compose-multiplatform-library = { id = "portlens.compose-multiplatform-library" }
+portlens-kotlin-multiplatform-library = { id = "portlens.kotlin.multiplatform.library" }
+portlens-compose-multiplatform-library = { id = "portlens.compose.multiplatform.library" }
+portlens-compose-multiplatform-feature = { id = "portlens.compose.multiplatform.feature" }
+portlens-compose-multiplatform-application = { id = "portlens.compose.multiplatform.application" }
 portlens-dependency-guard = { id = "portlens.dependency-guard" }
 portlens-git-hooks = { id = "portlens.git-hooks" }

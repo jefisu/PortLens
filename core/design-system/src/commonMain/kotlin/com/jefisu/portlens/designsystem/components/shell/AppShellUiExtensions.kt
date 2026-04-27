@@ -2,22 +2,22 @@ package com.jefisu.portlens.designsystem.components.shell
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_nav_monthly_summary
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_nav_overview
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_nav_portfolio
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_nav_transactions
+import com.jefisu.portlens.core.designsystem.generated.resources.nav_monthly_summary
+import com.jefisu.portlens.core.designsystem.generated.resources.nav_overview
+import com.jefisu.portlens.core.designsystem.generated.resources.nav_portfolio
+import com.jefisu.portlens.core.designsystem.generated.resources.nav_transactions
+import com.jefisu.portlens.core.designsystem.generated.resources.status_exempt
+import com.jefisu.portlens.core.designsystem.generated.resources.status_near_limit
+import com.jefisu.portlens.core.designsystem.generated.resources.status_taxable
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.card.model.MiniExemptionCardUi
 import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
 import com.jefisu.portlens.designsystem.components.shell.model.ShellDestination
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.ic_nav_monthly_summary
-import com.jefisu.portlens.designsystem.generated.resources.ic_nav_overview
-import com.jefisu.portlens.designsystem.generated.resources.ic_nav_portfolio
-import com.jefisu.portlens.designsystem.generated.resources.ic_nav_transactions
-import com.jefisu.portlens.designsystem.generated.resources.nav_monthly_summary
-import com.jefisu.portlens.designsystem.generated.resources.nav_overview
-import com.jefisu.portlens.designsystem.generated.resources.nav_portfolio
-import com.jefisu.portlens.designsystem.generated.resources.nav_transactions
-import com.jefisu.portlens.designsystem.generated.resources.status_exempt
-import com.jefisu.portlens.designsystem.generated.resources.status_near_limit
-import com.jefisu.portlens.designsystem.generated.resources.status_taxable
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
 

@@ -14,6 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.mini_exemption_summary
+import com.jefisu.portlens.core.designsystem.generated.resources.mini_exemption_title
 import com.jefisu.portlens.designsystem.PortLensDimens
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.card.model.MiniExemptionCardUi
@@ -22,9 +25,6 @@ import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
 import com.jefisu.portlens.designsystem.components.progress.PortLensProgressBar
 import com.jefisu.portlens.designsystem.components.shell.progress
 import com.jefisu.portlens.designsystem.components.shell.statusLabel
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.mini_exemption_summary
-import com.jefisu.portlens.designsystem.generated.resources.mini_exemption_title
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)

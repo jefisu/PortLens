@@ -17,10 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.close
+import com.jefisu.portlens.core.designsystem.generated.resources.new_transaction
 import com.jefisu.portlens.designsystem.PortLensTheme
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.close
-import com.jefisu.portlens.designsystem.generated.resources.new_transaction
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

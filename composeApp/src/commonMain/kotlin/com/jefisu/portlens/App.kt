@@ -21,6 +21,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jefisu.portlens.components.panel.NewTransactionPlaceholderPanel
 import com.jefisu.portlens.components.placeholder.PlaceholderScreen
+import com.jefisu.portlens.composeApp.generated.resources.Res
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_portfolio_body
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_portfolio_title
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_summary_body
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_summary_title
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_transactions_body
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_transactions_title
 import com.jefisu.portlens.core.domain.ExemptionStatus
 import com.jefisu.portlens.core.domain.GetAvailableCompetences
 import com.jefisu.portlens.core.domain.GetDashboardSnapshot
@@ -37,13 +44,6 @@ import com.jefisu.portlens.designsystem.components.shell.PortLensAppShell
 import com.jefisu.portlens.designsystem.components.shell.model.ShellDestination
 import com.jefisu.portlens.designsystem.components.shell.model.ShellNavItemUi
 import com.jefisu.portlens.feature.dashboard.presentation.DashboardRoot
-import com.jefisu.portlens.generated.resources.Res
-import com.jefisu.portlens.generated.resources.placeholder_portfolio_body
-import com.jefisu.portlens.generated.resources.placeholder_portfolio_title
-import com.jefisu.portlens.generated.resources.placeholder_summary_body
-import com.jefisu.portlens.generated.resources.placeholder_summary_title
-import com.jefisu.portlens.generated.resources.placeholder_transactions_body
-import com.jefisu.portlens.generated.resources.placeholder_transactions_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

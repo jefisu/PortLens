@@ -9,13 +9,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.fraunces_regular
-import com.jefisu.portlens.designsystem.generated.resources.ibm_plex_mono_medium
-import com.jefisu.portlens.designsystem.generated.resources.ibm_plex_mono_regular
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_medium
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_regular
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_semibold
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.fraunces_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.ibm_plex_mono_medium
+import com.jefisu.portlens.core.designsystem.generated.resources.ibm_plex_mono_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_medium
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_semibold
 import org.jetbrains.compose.resources.Font
 
 @Composable

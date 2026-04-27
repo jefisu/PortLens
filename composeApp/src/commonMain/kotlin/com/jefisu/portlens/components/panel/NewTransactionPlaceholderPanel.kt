@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jefisu.portlens.composeApp.generated.resources.Res
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_panel_body
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_panel_shortcuts
+import com.jefisu.portlens.composeApp.generated.resources.placeholder_panel_title
 import com.jefisu.portlens.designsystem.PortLensTheme
-import com.jefisu.portlens.generated.resources.Res
-import com.jefisu.portlens.generated.resources.placeholder_panel_body
-import com.jefisu.portlens.generated.resources.placeholder_panel_shortcuts
-import com.jefisu.portlens.generated.resources.placeholder_panel_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

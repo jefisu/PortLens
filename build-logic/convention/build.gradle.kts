@@ -26,13 +26,21 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("kotlinMultiplatformLibrary") {
+            id = "portlens.kotlin.multiplatform.library"
+            implementationClass = "KotlinMultiplatformLibraryConventionPlugin"
+        }
         register("composeMultiplatformLibrary") {
-            id = "portlens.compose-multiplatform-library"
+            id = "portlens.compose.multiplatform.library"
             implementationClass = "ComposeMultiplatformLibraryConventionPlugin"
         }
-        register("composeFeature") {
-            id = "portlens.compose-feature"
-            implementationClass = "ComposeFeatureConventionPlugin"
+        register("composeMultiplatformFeature") {
+            id = "portlens.compose.multiplatform.feature"
+            implementationClass = "ComposeMultiplatformFeatureConventionPlugin"
+        }
+        register("composeMultiplatformApplication") {
+            id = "portlens.compose.multiplatform.application"
+            implementationClass = "ComposeMultiplatformApplicationConventionPlugin"
         }
         register("dependencyGuard") {
             id = "portlens.dependency-guard"

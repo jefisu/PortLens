@@ -27,14 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.sidebar_navigation
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.card.MiniExemptionCard
 import com.jefisu.portlens.designsystem.components.card.model.MiniExemptionCardUi
 import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
 import com.jefisu.portlens.designsystem.components.shell.model.ShellDestination
 import com.jefisu.portlens.designsystem.components.shell.model.ShellNavItemUi
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.sidebar_navigation
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

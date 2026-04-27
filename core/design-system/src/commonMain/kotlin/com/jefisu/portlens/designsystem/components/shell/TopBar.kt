@@ -30,16 +30,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.app_name
+import com.jefisu.portlens.core.designsystem.generated.resources.competence_label
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_chevron_down
+import com.jefisu.portlens.core.designsystem.generated.resources.ic_portlens_mark
+import com.jefisu.portlens.core.designsystem.generated.resources.new_transaction
+import com.jefisu.portlens.core.designsystem.generated.resources.shortcut_n
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.shell.model.ShellDestination
 import com.jefisu.portlens.designsystem.components.shell.model.ShellNavItemUi
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.app_name
-import com.jefisu.portlens.designsystem.generated.resources.competence_label
-import com.jefisu.portlens.designsystem.generated.resources.ic_chevron_down
-import com.jefisu.portlens.designsystem.generated.resources.ic_portlens_mark
-import com.jefisu.portlens.designsystem.generated.resources.new_transaction
-import com.jefisu.portlens.designsystem.generated.resources.shortcut_n
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
