@@ -3,6 +3,7 @@ androidx-lifecycle = "2.10.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.10.3"
 dependencyGuard = "0.5.0"
+koin = "4.2.0"
 kotlin = "2.3.20"
 kotlinx-serialization = "1.9.0"
 kotlinx-coroutines = "1.10.2"
@@ -31,6 +32,9 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
 # Build-logic plugin artifacts (compileOnly for convention plugins)
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -54,3 +58,4 @@ portlens-compose-multiplatform-feature = { id = "portlens.compose.multiplatform.
 portlens-compose-multiplatform-application = { id = "portlens.compose.multiplatform.application" }
 portlens-dependency-guard = { id = "portlens.dependency-guard" }
 portlens-git-hooks = { id = "portlens.git-hooks" }
+portlens-koin = { id = "portlens.koin" }

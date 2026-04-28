@@ -11,14 +11,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
-    initialCompetence: CompetenceMonth,
     private val getDashboardSnapshot: GetDashboardSnapshot,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
     val state: StateFlow<DashboardState> = _state
 
-    private var selectedCompetence = initialCompetence
+    private var selectedCompetence: CompetenceMonth? = null
     private var hasLoadedCompetence = false
     private var loadJob: Job? = null
 
@@ -37,12 +36,14 @@ class DashboardViewModel(
     }
 
     fun loadDashboard() {
+        val competence = selectedCompetence ?: return
+
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val snapshot = getDashboardSnapshot(selectedCompetence)
+                val snapshot = getDashboardSnapshot(competence)
                 _state.value = snapshot.toDashboardState()
             } catch (e: Exception) {
                 _state.update {

@@ -46,6 +46,10 @@ gradlePlugin {
             id = "portlens.dependency-guard"
             implementationClass = "DependencyGuardConventionPlugin"
         }
+        register("koin") {
+            id = "portlens.koin"
+            implementationClass = "KoinConventionPlugin"
+        }
         register("gitHooks") {
             id = "portlens.git-hooks"
             implementationClass = "GitHooksConventionPlugin"

@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.dependencies
 class ComposeMultiplatformFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply<ComposeMultiplatformLibraryConventionPlugin>()
+        apply<KoinConventionPlugin>()
         apply<DependencyGuardConventionPlugin>()
 
         dependencies {
