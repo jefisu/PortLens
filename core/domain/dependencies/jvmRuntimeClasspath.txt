@@ -1,0 +1,4 @@
+org.jetbrains.kotlin:kotlin-stdlib:2.3.20
+org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.7.1
+org.jetbrains.kotlinx:kotlinx-datetime:0.7.1
+org.jetbrains:annotations:13.0

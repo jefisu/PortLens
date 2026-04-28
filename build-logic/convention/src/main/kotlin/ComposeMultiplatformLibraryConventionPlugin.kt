@@ -1,38 +1,49 @@
+import com.jefisu.portlens.getPluginId
+import com.jefisu.portlens.getVersion
+import com.jefisu.portlens.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.kotlin.dsl.dependencies
+import org.jetbrains.compose.ComposeExtension
+import org.jetbrains.compose.resources.ResourcesExtension
 
 class ComposeMultiplatformLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
         with(pluginManager) {
-            apply(libs.findPlugin("kotlinMultiplatform").get().get().pluginId)
-            apply(libs.findPlugin("composeMultiplatform").get().get().pluginId)
-            apply(libs.findPlugin("composeCompiler").get().get().pluginId)
+            apply<KotlinMultiplatformLibraryConventionPlugin>()
+            apply(libs.getPluginId("composeMultiplatform"))
+            apply(libs.getPluginId("composeCompiler"))
         }
 
-        extensions.configure<KotlinMultiplatformExtension> {
-            jvmToolchain(17)
-            jvm()
-            js { browser() }
-            @OptIn(ExperimentalWasmDsl::class)
-            wasmJs { browser() }
+        configureComposeResources()
 
-            sourceSets.named("commonMain") {
-                dependencies {
-                    implementation(libs.findLibrary("compose-runtime").get())
-                    implementation(libs.findLibrary("compose-foundation").get())
-                    api(libs.findLibrary("compose-material3").get())
-                    implementation(libs.findLibrary("compose-ui").get())
-                    implementation(libs.findLibrary("compose-components-resources").get())
-                    implementation(libs.findLibrary("compose-uiToolingPreview").get())
-                }
-            }
+        dependencies {
+            "commonMainImplementation"(libs.findLibrary("compose-runtime").get())
+            "commonMainImplementation"(libs.findLibrary("compose-foundation").get())
+            "commonMainImplementation"(libs.findLibrary("compose-ui").get())
+            "commonMainImplementation"(libs.findLibrary("compose-components-resources").get())
+            "commonMainImplementation"(libs.findLibrary("compose-uiToolingPreview").get())
+            "commonMainApi"(libs.findLibrary("compose-material3").get())
+        }
+    }
+}
+
+private val Project.modulePathToPackage: String
+    get() = path
+        .removePrefix(":")
+        .replace(":", ".")
+        .replace("-", "")
+
+private fun Project.configureComposeResources() {
+    extensions.configure<ComposeExtension> {
+        (this as ExtensionAware).extensions.configure<ResourcesExtension> {
+            generateResClass = ResourcesExtension.ResourceClassGeneration.Auto
+            publicResClass = path == ":core:design-system"
+            packageOfResClass =
+                "${libs.getVersion("appPackageName")}.$modulePathToPackage.generated.resources"
         }
     }
 }

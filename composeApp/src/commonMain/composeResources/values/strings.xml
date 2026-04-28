@@ -1,0 +1,11 @@
+<resources>
+    <string name="placeholder_transactions_title">Lançamentos</string>
+    <string name="placeholder_transactions_body">A tela completa de lançamentos entra no próximo slice, preservando shell, atalhos e contexto de competência.</string>
+    <string name="placeholder_portfolio_title">Carteira atual</string>
+    <string name="placeholder_portfolio_body">A visão consolidada de carteira entra depois do ledger manual estar estável.</string>
+    <string name="placeholder_summary_title">Competências</string>
+    <string name="placeholder_summary_body">O resumo por competência entra sobre a mesma base de domínio e formatação já criada neste slice.</string>
+    <string name="placeholder_panel_title">Painel placeholder</string>
+    <string name="placeholder_panel_body">Este slice já reserva o encaixe do fluxo manual sem introduzir validação, persistência ou preview fiscal definitivo antes da fase correta.</string>
+    <string name="placeholder_panel_shortcuts">Atalhos ativos: N para abrir, Esc para fechar.</string>
+</resources>

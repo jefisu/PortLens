@@ -9,13 +9,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.jefisu.portlens.designsystem.generated.resources.Res
-import com.jefisu.portlens.designsystem.generated.resources.fraunces_regular
-import com.jefisu.portlens.designsystem.generated.resources.ibm_plex_mono_medium
-import com.jefisu.portlens.designsystem.generated.resources.ibm_plex_mono_regular
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_medium
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_regular
-import com.jefisu.portlens.designsystem.generated.resources.inter_tight_semibold
+import com.jefisu.portlens.core.designsystem.generated.resources.Res
+import com.jefisu.portlens.core.designsystem.generated.resources.fraunces_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.ibm_plex_mono_medium
+import com.jefisu.portlens.core.designsystem.generated.resources.ibm_plex_mono_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_medium
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_regular
+import com.jefisu.portlens.core.designsystem.generated.resources.inter_tight_semibold
 import org.jetbrains.compose.resources.Font
 
 @Composable
@@ -41,6 +41,7 @@ data class PortLensTypography(
     val displayXl: TextStyle,
     val displayLg: TextStyle,
     val displayMd: TextStyle,
+    val pageTitle: TextStyle,
     val headingLg: TextStyle,
     val headingMd: TextStyle,
     val bodyMd: TextStyle,
@@ -86,6 +87,13 @@ internal fun portLensTypography(): PortLensTypography {
             fontWeight = FontWeight.Normal,
             fontSize = 28.sp,
             lineHeight = (28 * 1.15).sp,
+            lineHeightStyle = tightLineHeight,
+        ),
+        pageTitle = TextStyle(
+            fontFamily = display,
+            fontWeight = FontWeight.Normal,
+            fontSize = 40.sp,
+            lineHeight = (40 * 1.1).sp,
             lineHeightStyle = tightLineHeight,
         ),
         headingLg = TextStyle(

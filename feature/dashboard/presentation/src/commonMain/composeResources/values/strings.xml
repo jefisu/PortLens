@@ -1,0 +1,33 @@
+<resources>
+    <string name="dashboard_title">Visão geral</string>
+    <string name="dashboard_updated_at">Atualizado %1$s</string>
+    <string name="dashboard_exemption_title">Isenção do mês</string>
+    <string name="dashboard_exemption_subtitle">Limite mensal · Lei 11.033/2004</string>
+    <string name="dashboard_exemption_hint">de %1$s vendidos este mês</string>
+    <string name="dashboard_exemption_remaining">Pode vender mais %1$s sem IR</string>
+    <string name="dashboard_realized_gain">Lucro realizado · %1$s</string>
+    <string name="dashboard_realized_gain_supporting">em %1$s vendas</string>
+    <string name="dashboard_estimated_tax">IR estimado · %1$s</string>
+    <string name="dashboard_estimated_tax_supporting">enquanto isento</string>
+    <string name="dashboard_latest_transactions_title">Últimos lançamentos</string>
+    <string name="dashboard_latest_transactions_subtitle">%1$s · %2$s operações</string>
+    <string name="dashboard_view_all">Ver todos →</string>
+    <string name="dashboard_column_date">Data</string>
+    <string name="dashboard_column_ticker">Ticker</string>
+    <string name="dashboard_column_type">Tipo</string>
+    <string name="dashboard_column_quantity">Qtd</string>
+    <string name="dashboard_column_price">Preço</string>
+    <string name="dashboard_column_volume">Volume</string>
+    <string name="dashboard_column_result">L/P</string>
+    <string name="dashboard_column_month_volume">Vol. mês</string>
+    <string name="dashboard_type_buy">Compra</string>
+    <string name="dashboard_type_sell">Venda</string>
+    <string name="dashboard_type_rebuy">Recompra</string>
+    <string name="dashboard_status_exempt">Isento</string>
+    <string name="dashboard_status_near_limit">Perto do limite</string>
+    <string name="dashboard_status_taxable">Tributável</string>
+    <string name="dashboard_retry">Tentar novamente</string>
+    <string name="dashboard_generic_error">Nao foi possivel carregar os dados desta competencia.</string>
+    <string name="dashboard_count_sales_two">2</string>
+    <string name="dashboard_month_short_november">Nov</string>
+</resources>

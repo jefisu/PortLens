@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">PortLens</string>
+    <string name="sidebar_navigation">Navegação</string>
+    <string name="nav_overview">Visão geral</string>
+    <string name="nav_transactions">Lançamentos</string>
+    <string name="nav_portfolio">Carteira atual</string>
+    <string name="nav_monthly_summary">Competências</string>
+    <string name="competence_label">Competência</string>
+    <string name="new_transaction">Novo lançamento</string>
+    <string name="shortcut_n">N</string>
+    <string name="mini_exemption_title">Isenção · %1$s</string>
+    <string name="mini_exemption_summary">%1$s · %2$s · restam %3$s</string>
+    <string name="status_exempt">Isento</string>
+    <string name="status_near_limit">Perto do limite</string>
+    <string name="status_taxable">Tributável</string>
+    <string name="close">Fechar</string>
+</resources>
