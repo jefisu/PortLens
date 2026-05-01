@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.feature.dashboard.presentation)
+            implementation(projects.core.database)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)

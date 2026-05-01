@@ -3,13 +3,17 @@ androidx-lifecycle = "2.10.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.10.3"
 dependencyGuard = "0.5.0"
+koin = "4.2.0"
 kotlin = "2.3.20"
+ksp = "2.3.6"
 kotlinx-serialization = "1.9.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-datetime = "0.7.1"
 material3 = "1.10.0-alpha05"
 moduleGraph = "2.8.0"
 navigationCompose = "2.9.2"
+room3 = "3.0.0-alpha02"
+sqlite = "2.7.0-alpha02"
 
 appPackageName = "com.jefisu.portlens"
 appPackageVersion = "1.0.0"
@@ -31,12 +35,20 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
 
 # Build-logic plugin artifacts (compileOnly for convention plugins)
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-composeCompilerGradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 compose-gradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
 dependencyGuard-gradlePlugin = { module = "com.dropbox.dependency-guard:com.dropbox.dependency-guard.gradle.plugin", version.ref = "dependencyGuard" }
+room3-gradlePlugin = { module = "androidx.room3:androidx.room3.gradle.plugin", version.ref = "room3" }
 
 [plugins]
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
@@ -45,7 +57,9 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dependencyGuard" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 moduleGraph = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraph" }
+room3 = { id = "androidx.room3", version.ref = "room3" }
 
 # PortLens convention plugins (resolved via build-logic composite build — no version needed)
 portlens-kotlin-multiplatform-library = { id = "portlens.kotlin.multiplatform.library" }
@@ -54,3 +68,5 @@ portlens-compose-multiplatform-feature = { id = "portlens.compose.multiplatform.
 portlens-compose-multiplatform-application = { id = "portlens.compose.multiplatform.application" }
 portlens-dependency-guard = { id = "portlens.dependency-guard" }
 portlens-git-hooks = { id = "portlens.git-hooks" }
+portlens-koin = { id = "portlens.koin" }
+portlens-room3 = { id = "portlens.room3"}

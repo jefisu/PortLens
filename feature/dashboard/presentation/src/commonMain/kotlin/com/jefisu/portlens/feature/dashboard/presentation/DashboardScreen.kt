@@ -21,9 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jefisu.portlens.core.domain.CompetenceMonth
-import com.jefisu.portlens.core.domain.GetDashboardSnapshot
 import com.jefisu.portlens.core.presentation.isWebPlatform
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.feature.dashboard.presentation.components.header.DashboardPageHeader
@@ -34,19 +32,14 @@ import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.da
 import com.jefisu.portlens.feature.dashboard.presentation.generated.resources.dashboard_retry
 import com.jefisu.portlens.feature.dashboard.presentation.util.dashboardSnapshotPreview
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DashboardRoot(
     selectedCompetence: CompetenceMonth,
-    getDashboardSnapshot: GetDashboardSnapshot,
     modifier: Modifier = Modifier,
     onViewAllTransactions: () -> Unit = {},
-    viewModel: DashboardViewModel = viewModel(key = selectedCompetence.toString()) {
-        DashboardViewModel(
-            initialCompetence = selectedCompetence,
-            getDashboardSnapshot = getDashboardSnapshot,
-        )
-    },
+    viewModel: DashboardViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

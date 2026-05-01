@@ -3,22 +3,22 @@ package com.jefisu.portlens.feature.dashboard.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jefisu.portlens.core.domain.CompetenceMonth
-import com.jefisu.portlens.core.domain.GetDashboardSnapshot
+import com.jefisu.portlens.core.domain.DashboardRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
-    initialCompetence: CompetenceMonth,
-    private val getDashboardSnapshot: GetDashboardSnapshot,
+    private val dashboardRepository: DashboardRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
     val state: StateFlow<DashboardState> = _state
 
-    private var selectedCompetence = initialCompetence
+    private var selectedCompetence: CompetenceMonth? = null
     private var hasLoadedCompetence = false
     private var loadJob: Job? = null
 
@@ -37,20 +37,14 @@ class DashboardViewModel(
     }
 
     fun loadDashboard() {
+        val competence = selectedCompetence ?: return
+
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
-            try {
-                val snapshot = getDashboardSnapshot(selectedCompetence)
+            dashboardRepository.getDashboardSnapshot(competence).collectLatest { snapshot ->
                 _state.value = snapshot.toDashboardState()
-            } catch (e: Exception) {
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message.orEmpty(),
-                    )
-                }
             }
         }
     }

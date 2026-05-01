@@ -9,6 +9,13 @@
 **/build/
 !src/**/build/
 
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+*.db.lck
+**/schemas
+
 # Compose Hot Reload
 .compose-hot-reload/
 
