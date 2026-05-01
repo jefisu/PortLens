@@ -35,6 +35,7 @@ plugins {
 
 include(":composeApp")
 include(":core:domain")
+include(":core:database")
 include(":core:presentation")
 include(":core:design-system")
 include(":feature:dashboard:presentation")

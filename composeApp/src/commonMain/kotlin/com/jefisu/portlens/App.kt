@@ -28,12 +28,12 @@ import com.jefisu.portlens.composeApp.generated.resources.placeholder_summary_ti
 import com.jefisu.portlens.composeApp.generated.resources.placeholder_transactions_body
 import com.jefisu.portlens.composeApp.generated.resources.placeholder_transactions_title
 import com.jefisu.portlens.core.domain.ExemptionStatus
-import com.jefisu.portlens.di.portLensAppModule
 import com.jefisu.portlens.core.presentation.formatBrl
 import com.jefisu.portlens.core.presentation.formatCompetence
 import com.jefisu.portlens.core.presentation.isCurrentLocalCompetence
 import com.jefisu.portlens.core.presentation.shortMonthLabel
 import com.jefisu.portlens.core.presentation.toPercentLabel
+import com.jefisu.portlens.di.portLensAppModule
 import com.jefisu.portlens.designsystem.PortLensTheme
 import com.jefisu.portlens.designsystem.components.card.model.MiniExemptionCardUi
 import com.jefisu.portlens.designsystem.components.common.model.SemanticTone
@@ -68,9 +68,7 @@ private fun PortLensApp(
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry?.destination
-    val snapshot = remember(shellState.selectedCompetence) {
-        fakeDashboardSnapshotFor(shellState.selectedCompetence)
-    }
+    val snapshot = shellState.snapshot
 
     val navItems = listOf(
         ShellNavItemUi(
@@ -94,7 +92,7 @@ private fun PortLensApp(
         CompetenceOptionUi(
             label = competence.formatCompetence(),
             isSelected = competence == shellState.selectedCompetence,
-            indicatorTone = fakeCompetenceIndicatorToneFor(competence),
+            indicatorTone = shellState.competenceIndicatorTones[competence],
             onClick = {
                 appShellViewModel.onAction(AppShellAction.OnCompetenceSelected(competence))
             },

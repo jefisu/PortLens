@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.dependencyGuard) apply false
     alias(libs.plugins.kotlinSerialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.room3) apply false
     // Module dependency graph — applied here so it can scan all subprojects
     alias(libs.plugins.moduleGraph) apply true
     // Git hooks — installed automatically on build/clean/check/assemble

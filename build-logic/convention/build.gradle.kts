@@ -22,6 +22,7 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.kotlin.composeCompilerGradlePlugin)
     compileOnly(libs.dependencyGuard.gradlePlugin)
+    compileOnly(libs.room3.gradlePlugin)
 }
 
 gradlePlugin {
@@ -53,6 +54,10 @@ gradlePlugin {
         register("gitHooks") {
             id = "portlens.git-hooks"
             implementationClass = "GitHooksConventionPlugin"
+        }
+        register("room3") {
+            id = "portlens.room3"
+            implementationClass = "Room3ConventionPlugin"
         }
     }
 }
